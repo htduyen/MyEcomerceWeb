@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.1.0/firebase-app.js"></script>
+    <script  src="https://www.gstatic.com/firebasejs/7.1.0/firebase-firestore.js"></script>
+    <link rel="stylesheet" href="css/my_style.css">
+    <script src="js/init-firebase.js"></script>
+   
+    <title>Add Product</title>
+</head>
+<body>
+    <div class="jumbotron text-center">
+        <h1>Thêm Sản Phẩm</h1>
+        <a href="index.html" class="link"><i class="fas fa-fw fa-tachometer-alt"></i> Dashboard</a><span> /</span>
+        <a href="tables.html" class="link"><i class="fas fa-table"></i> Table</a><span> /</span>
+        <a href="add_data_category.html" class="link"><i class="fas fa-stream"></i> Category</a>
+    </div>
+    <div class="container-fluid" style="height: 1500px;">
+        <div class="row justify-content-center">
+                <div class="form-group">
+                        <label for="use_tablayout">Danh mục:</label>
+                        <select class="form-control" id="category">
+                            <option  value="Laptop" selected="selected">Laptop</option>
+                            <option  value="TV">TV</option>
+                            <option  value="MOBILES">MOBILES</option>
+                            <option  value="FASHION">FASHION</option>
+                            <option  value="SHOES">SHOES</option>
+                            <option  value="GLASSES">GLASSES</option>
+                            <option  value="FURNITURE">FURNITURE</option>
+                            <option  value="SPEAKER">SPEAKER</option>
+                        </select>
+                </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label for="product_name">Tên sản phẩm:</label>
+                    <input type="text" name="first_name" id="product_name" class="form-control input-sm" placeholder="Tên sản phẩm">
+                </div>
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                    <label for="product_price">Gía sản phẩm:</label>
+                    <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Gía sản phẩm" id="product_price">
+                            <div class="input-group-append">
+                              <button class="btn btn-success" type="submit">đ</button>
+                            </div>
+                    </div>
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                    <div class="form-group">
+                        <label for="stock_quantity">Số lượng trong kho:</label>
+                        <input type="number" name="stock_quantity" id="stock_quantity" value="5" class="form-control input-sm" placeholder="Số lượng tồn">
+                    </div>
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                    <div class="form-group">
+                        <label for="max_quantity">Số lượng tối đa bán:</label>
+                        <input type="number" name="max_quantity" id="max_quantity" value="5" class="form-control input-sm" placeholder="Số lượng tối đa bán">
+                    </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                    <div class="form-group">
+                            <label for="product_description">Mô tả sản phẩm:</label>
+                            <textarea class="form-control" rows="3" placeholder="Mô tả về sản phẩm" id="product_description"></textarea>
+                    </div>
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                    <label for="product_cutted_price">Gía cũ:</label>
+                    <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Gía cũ" id="product_cutted_price">
+                            <div class="input-group-append">
+                              <button class="btn btn-success" type="submit">đ</button>
+                            </div>
+                    </div>
+            </div>
+            <div class="col-xs-2 col-md-2 col-sm-2">
+                    <div class="form-group">
+                            <label for="use_tablayout">Sử dụng Tablayout:</label>
+                            <select class="form-control" id="use_tablayout" onchange="changeUseTabFunction()">
+                                <option value="true" selected = "selected">True</option>
+                                <option value="false">False</option>
+                            </select>
+                    </div>
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                    <div class="form-group">
+                            <label for="cod">COD:</label>
+                            <select class="form-control" id="cod">
+                                <option value="true">True</option>
+                                <option value="false" selected = 'selected'>False</option>
+                            </select>
+                    </div>
+            </div>
+        </div>
+
+        <div class="row">
+                <div class="col-xs-6 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label for="free_discount_name">Tên khuyến mãi:</label>
+                        <input type="text" name="discount_name" id="free_discount_name" class="form-control input-sm" placeholder="Tên khuyến mãi">
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label for="free_discount_body">Nội dung khuyến mãi:</label>
+                        <textarea class="form-control" placeholder="Nội dung khuyến mãi" rows="3" id="free_discount_body"></textarea>                    
+                    </div>
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-2">
+                        <div class="form-group">
+                            <label for="free_discount">Phần trăm khuyến mãi (%):</label>
+                            <input type="number" name="last_name"  id="free_discount" value="10" class="form-control input-sm" placeholder="Số lượng ">
+                        </div>
+                </div>
+        </div>
+        <hr>
+        <!-- Chọn ảnh  -->
+        <div class="row" style="font-weight: bold; color: blue; margin-left:10px ;">
+            <h4>Upload ảnh</h4>
+        </div>
+        <div class="row">
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <input type="file" name="image1" id="img1">
+                        </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group">
+                                <input type="file" name="image2" id="img2">
+                        </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <input type="file" name="image1" id="img3">
+                        </div>
+                </div>
+        </div><!-- Chọn ảnh  -->
+        <hr>
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                        <label for="product_other_detail">Chi tiết khác:</label>
+                        <textarea class="form-control" rows="3" placeholder="Thông tin thêm về sản phẩm" id="product_other_detail"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chi tiet kỹ thuật  -->
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="total_specification_titles">Tổng số mục chi tiết kĩ thuật:</label>
+                    <input type="number" class="form-control"  placeholder="" value="2" id="total_specification_titles">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="total_fields_spec_title_1">Số mục chi tiết kĩ thuật 1:</label>
+                    <input type="number" class="form-control"  placeholder=""  value="2" id="total_fields_spec_title_1">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="total_fields_spec_title_2">Số mục chi tiết kĩ thuật 2:</label>
+                    <input type="number" class="form-control"  placeholder=""  value="2" id="total_fields_spec_title_2">
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiet 1 -->
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_1">Chi tiết kĩ thuật 1:</label>
+                    <input type="text" class="form-control" placeholder="Tên mục" id="spec_title_1">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_1_field_1_name">Tên trường 1:</label>
+                    <input type="text" class="form-control" placeholder="Tên trường" id="spec_title_1_field_1_name">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_1_field_1_value">Gía trị 1:</label>
+                    <input type="text" class="form-control" placeholder="Gía trị" id="spec_title_1_field_1_value">
+                </div>
+            </div> 
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_1_field_2_name">Tên trường 2:</label>
+                    <input type="text" class="form-control" placeholder="Tên trường" id="spec_title_1_field_2_name">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_1_field_2_value">Gía trị 2:</label>
+                    <input type="text" class="form-control" placeholder="Gía trị" id="spec_title_1_field_2_value">
+                </div>
+            </div> 
+        </div>
+        <!-- Chi tiet 1 -->
+
+        <!-- Chi tiet 2 -->
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_2">Chi tiết kĩ thuật 2:</label>
+                    <input type="text" class="form-control" placeholder="Tên mục" id="spec_title_2">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_2_field_1_name">Tên trường 1:</label>
+                    <input type="text" class="form-control" placeholder="Tên trường" id="spec_title_2_field_1_name">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_2_field_1_value">Gía trị 1:</label>
+                    <input type="text" class="form-control" placeholder="Gía trị" id="spec_title_2_field_1_value">
+                </div>
+            </div> 
+        </div>
+        <div class="row">
+            <div class="col-xs-4 col-sm-4 col-md-4">
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_2_field_2_name">Tên trường 2:</label>
+                    <input type="text" class="form-control" placeholder="Tên trường" id="spec_title_2_field_2_name">
+                </div>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label for="spec_title_2_field_2_value">Gía trị 2:</label>
+                    <input type="text" class="form-control" placeholder="Gía trị" id="spec_title_2_field_2_value">
+                </div>
+            </div> 
+        </div>
+        <!-- Chi tiet 2 -->
+
+        <!-- Tags tim kiem -->
+        <div class="row">
+            <div class="col-xs-10 col-sm-10 col-md-10">
+                <label for="tags">Tags tìm kiếm:</label>
+                <ul class="tags" id="tags">
+                    <li class="tagAdd taglist">  
+                        <input type="text" id="tag1">
+                    </li>
+                    <li class="tagAdd taglist">  
+                        <input type="text" id="tag2">
+                    </li>
+                    <li class="tagAdd taglist">  
+                        <input type="text" id="tag3">
+                    </li>
+                    <li class="tagAdd taglist">  
+                        <input type="text" id="tag4">
+                    </li>
+                </ul>
+            </div>
+            
+        </div>
+        <div class="container">
+            <div class="row justify-content-center">
+                    <button id="btnAddProduct" onclick="add_product()" class="btn btn-primary col-xs-12 col-sm-6 col-md-6">Thêm sản phẩm</button>
+            </div>
+        </div>
+
+    </div>  <!-- container -->
+    <script src="js/myscript.js"></script>
+</body>
+</html>
