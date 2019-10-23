@@ -10,6 +10,10 @@
   <meta name="author" content="">
 
   <title>SB Admin - Tables</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
   <link href="css/sb-admin.css" rel="stylesheet">
@@ -138,8 +142,7 @@
         <div class="card mb-3">
           <div class="card-header">
             <i class="fas fa-table"></i>
-            Data Table Example</div>
-
+            Danh Mục Các Sản Phẩm</div>
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -151,7 +154,8 @@
                     <th>Cutted price</th>
                     <th>Average rating</th>
                     <th>Total rating</th>
-                    <th>Option</th>
+                    <th>Edit Option</th>
+                    <th>Delete Option</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -162,7 +166,8 @@
                       <th>Cutted price</th>
                       <th>Average rating</th>
                       <th>Total rating</th>
-                      <th>Option</th>
+                      <th>Edit Option</th>
+                      <th>Delete Option</th>
                   </tr>
                 </tfoot>
                 <tbody id="table_body">
@@ -184,7 +189,64 @@
           </div>
           <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
         </div>
-
+        <!-- Danh Mục Order -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Danh Mục Order</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Mã Order</th>
+                    <th>Thanh Toán</th>
+                    <th>Trang Thái Giao Hàng</th>
+                    <th>Số lượng</th>
+                    <th>Tổng tiền TT</th>
+                    <th> Packed</th>
+                    <th> Shipped</th>
+                    <th> Delivered</th>
+                    <th>Xem Chi Tiết</th>
+                  </tr>
+                </thead>
+                <tfoot>
+                  <tr>
+                    <th>Mã Order</th>
+                    <th>Thanh Toán</th>
+                    <th>Trang Thái Giao Hàng</th>
+                    <th>Số lượng</th>
+                    <th>Tổng tiền TT</th>
+                    <th> Packed</th>
+                    <th> Shipped</th>
+                    <th> Delivered</th>
+                    <th>Xem Chi Tiết</th>
+                  </tr>
+                </tfoot>
+                <tbody id="table_body_order">
+                  <!-- <tr id="table_row_order">
+                    <td style="font-weight: bold;">Donna Snider</td>
+                    <td>Customer Support</td>
+                    <td>New York</td>
+                    <td>27</td>
+                    <td>2011/01/25</td>                  
+                    <td id="table_td" style="color: black; ">
+                      <div class="form-group" style="display: flex; justify-content: space-between; text-align: center;">
+                        <h3><i id="packed_order" style="justify-content: center; color: blue" onclick="packed_order()" class="fas fa-box" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>
+                        <h3><i id="shipped_order" style="color: rgb(8, 173, 82)" onclick="shipped_order()" class="fas fa-shipping-fast" data-toggle="tooltip" data-placement="right" title="Shipped"></i> </h3> <br>
+                      </div>
+                        <h3><i id="delivered_order" style="color: rgb(236, 146, 27)" onclick="delivered_order()" class="fas fa-people-carry" data-toggle="tooltip" data-placement="bottom" title="Delivered"></i> </h3>
+                    </td>
+                    <td style="color:blue; text-align: center; padding-top:30px;">
+                      <h3><i class="fas fa-angle-double-right" id="view_detail" onclick="view_detail()"></i></h3>
+                    </td>
+                  </tr> -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+        </div>
         <p class="small text-center text-muted my-5">
           <em>More table examples coming soon...</em>
         </p>

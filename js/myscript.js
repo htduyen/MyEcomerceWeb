@@ -1,17 +1,15 @@
-import { storage } from "firebase";
-// Required for side-effects
-import "firebase/firestore";
+// import { storage } from "firebase";
+// // Required for side-effects
+// import "firebase/firestore";
 const tablebody = document.querySelector('#table_body');
+const tablebodyOrder = document.querySelector('#table_body_order');
 const table_td = document.querySelector('#table_td');
 var tags = [];
 
-function delete_product(){
-    alert('Delete product');
-}
+let tr = document.createElement('tr');
+let id = document.createElement('td');
+// /////////////////////////Start Table /////////////////////////////
 
-function edit_product(){
-    alert('Edit product');
-}
 
 function kiemtra(doc){
     var email = document.getElementById('inputEmail').nodeValue;
@@ -33,13 +31,15 @@ function login(){
 function renderProduct(doc){
     let tr = document.createElement('tr');
     let id = document.createElement('td');
+    
     let name = document.createElement('td');
     let price = document.createElement('td');
     let cuttesPrice = document.createElement('td');
     let average_ratting = document.createElement('td');
     let total_ratting = document.createElement('td');
-    let option = document.createElement('td');
-    
+    let edit_option = document.createElement('td');
+    let delete_option = document.createElement('td');
+
 
     tr.setAttribute('table_row', doc.id);
     id.textContent = doc.id;
@@ -48,19 +48,34 @@ function renderProduct(doc){
     cuttesPrice.textContent = doc.data().product_cutted_price;
     average_ratting.textContent = doc.data().average_rating;
     total_ratting.textContent = doc.data().total_rating;
-    option.innerHTML = `
-                    <i id="edit_product" style="color: blue" onclick="edit_product()" class="far fa-edit"></i> Edit <br>
-                    <i id="delete_product" style="color: red"  onclick="delete_product()" class="far fa-trash-alt"></i> Delete
-    `
+    
+    edit_option.innerHTML = `<i id="edit_product" style="color: blue"  class="far fa-edit"></i> Edit`;
+    delete_option.innerHTML = `<i id="delete_product" style="color: red"  class="far fa-trash-alt"></i> Delete`;
+
     tr.appendChild(id);
     tr.appendChild(name);
     tr.appendChild(price);
     tr.appendChild(cuttesPrice);
     tr.appendChild(average_ratting);
     tr.appendChild(total_ratting);
-    tr.appendChild(option);
+    tr.appendChild(edit_option);
+    tr.appendChild(delete_option);
     
     tablebody.appendChild(tr);
+
+    edit_option.addEventListener('click', (e) =>{
+        e.stopPropagation();
+        let product_id = tr.getAttribute('table_row');
+        console.log("Edit ID: " +  product_id);
+    })
+
+    delete_option.addEventListener('click', (e) =>{
+        e.stopPropagation();
+        let product_id = tr.getAttribute('table_row');
+        console.log("Remove ID: " +  product_id);
+    });
+
+    
 
 
 }
@@ -70,8 +85,98 @@ db.collection("PRODUCTS").get().then((snapshot) => {
         snapshot.forEach((doc) => {
             renderProduct(doc);
         });
+});
+
+
+
+//////////// Load Order
+function renderOders(doc){
+    let tr = document.createElement('tr');
+    let id_field = document.createElement('td');
+    //id_field.id = 'id_order';
+    let payment_status = document.createElement('td');
+    let order_status = document.createElement('td');
+    let totalItems = document.createElement('td');
+    let total_amount = document.createElement('td');
+    let packed_option = document.createElement('td');
+    let shipped_option = document.createElement('td');
+    let delivered_option = document.createElement('td');
+    let view_option = document.createElement('td');
+    
+    
+    
+
+    tr.setAttribute('table_row_order', doc.id);
+    id_field.textContent = doc.id;
+    payment_status.textContent = doc.data().Payment_Status;
+    order_status.textContent = doc.data().Order_Status;
+    totalItems.textContent = doc.data().Total_Items;
+    total_amount.textContent = doc.data().Total_Amount;
+    packed_option.innerHTML = `<h3><i id="packed_order" style="justify-content: center; color: blue"   class="fas fa-box" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
+    shipped_option.innerHTML = `<h3><i id="shipped_order" style="color: rgb(8, 173, 82)"  class="fas fa-shipping-fast" data-toggle="tooltip" data-placement="right" title="Shipped"></i> </h3>`;
+    delivered_option.innerHTML = `<h3><i id="shipped_order" style="justify-content: center; color: blue"   class="fas fa-people-carry" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
+
+    view_option.innerHTML = `<h3><i id="delivered_order" style="color: rgb(236, 146, 27)" class="fas fa-angle-double-right" data-toggle="tooltip" data-placement="bottom" title="Delivered"></i> </h3>`;
+
+    tr.appendChild(id_field);
+    tr.appendChild(payment_status);
+    tr.appendChild(order_status);
+    tr.appendChild(totalItems);
+    tr.appendChild(total_amount);
+    tr.appendChild(packed_option);
+    tr.appendChild(shipped_option);
+    tr.appendChild(delivered_option);
+    tr.appendChild(view_option);
+    
+    
+    tablebodyOrder.appendChild(tr);
+
+    packed_option.addEventListener('click',function(e){
+        e.stopPropagation();
+        let order_id = tr.getAttribute('table_row_order');
+        console.log("Packed ID: " +  order_id);
+        db.collection('ORDERS').doc(order_id).collection('OrderItems').doc().update({
+            Order_Status: 'Packed',
+            Packed_date: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+            console.log("Document successfully updated!");
+        })
+    });
+    shipped_option.addEventListener('click',function(e){
+        e.stopPropagation();
+        let order_id = tr.getAttribute('table_row_order');
+        console.log("Shipped ID: " +  order_id);
+    });
+    delivered_option.addEventListener('click',function(e){
+        e.stopPropagation();
+        let order_id = tr.getAttribute('table_row_order');
+        console.log("Delivered ID: " +  order_id);
+    });
+    view_option.addEventListener('click',function(e){
+        e.stopPropagation();
+        let order_id = tr.getAttribute('table_row_order');
+        console.log("View ID: " +  order_id);
+    });
+
+
+}
+
+db.collection("ORDERS").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+        renderOders(doc);  
+    });
 })
 
+
+
+
+
+/////////////Load Order
+
+
+
+
+// /////////////////////////End Table /////////////////////////////
 // kiem tra input type string
 function allLetter(name){ 
       var letters = /^[A-Za-z]+$/;
@@ -97,9 +202,8 @@ function allnumeric(name, field){
 function isEmpty(inputtx, field) {
     if (inputtx.value.length == 0){ 
         alert(field + " không rỗng!");  	
-        return false; 
+        return true; 
     }
-    return true;
 }
 function changeUseTabFunction(){
     
@@ -137,31 +241,64 @@ function changeUseTabFunction(){
         alert('KHong dung');
     }
 }
-function upLoadStorage(image, imageName){  
-    let storageRef = storage().ref('test/' + imageName);
+function upLoadStorage1(image, imageName, id){  
+     
+    let storageRef = firebase.storage().ref('Products/' + imageName);
+   // mang.push(storageRef.getDownloadURL());
     var uploadTask = storageRef.put(image);
     uploadTask.on('state_changed', function(snapshot){
         var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-        switch (snapshot.state) {
-          case storage.TaskState.PAUSED: // or 'paused'
-            console.log('Upload is paused');
-            break;
-          case storage.TaskState.RUNNING: // or 'running'
-            console.log('Upload is running');
-            break;
-        }
+        //console.log('Upload is ' + progress + '% done');
       }, function(error) {
-            console.log('Error upload ảnh' + imageName);
       }, function() {
-            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-            console.log('UrlDownload ' + imageName, downloadURL );
-            });
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          console.log('File available at', downloadURL);
+          db.collection("PRODUCTS").doc(id).update({
+            product_image_1: downloadURL
+        }) 
+        });
+      });
+}
+function upLoadStorage2(image, imageName, id){  
+     
+    let storageRef = firebase.storage().ref('Products/' + imageName);
+   // mang.push(storageRef.getDownloadURL());
+    var uploadTask = storageRef.put(image);
+    uploadTask.on('state_changed', function(snapshot){
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        //console.log('Upload is ' + progress + '% done');
+      }, function(error) {
+      }, function() {
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          console.log('File available at', downloadURL);
+          db.collection("PRODUCTS").doc(id).update({
+            product_image_2: downloadURL
+        }) 
+        });
+      });
+}
+function upLoadStorage3(image, imageName, id){  
+     
+    let storageRef = firebase.storage().ref('Products/' + imageName);
+   // mang.push(storageRef.getDownloadURL());
+    var uploadTask = storageRef.put(image);
+    uploadTask.on('state_changed', function(snapshot){
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        //console.log('Upload is ' + progress + '% done');
+      }, function(error) {
+      }, function() {
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          console.log('File available at', downloadURL);
+          db.collection("PRODUCTS").doc(id).update({
+            product_image_3: downloadURL
+        }) 
+        });
       });
 }
 function add_product(){
 
-    var e = document.getElementById("category");
+
+    var cate = document.getElementById('category');
     var tab = document.getElementById("use_tablayout");
     var alb = document.getElementById('cod');
     var name  = document.getElementById('product_name');
@@ -174,7 +311,7 @@ function add_product(){
     var body_discount = document.getElementById('free_discount_body');;
     var num_free_discount = document.getElementById('free_discount');
     var other_detail = document.getElementById('product_other_detail');
-    
+
     var anh1 = document.getElementById('img1');
     var anh2 = document.getElementById('img2');
     var anh3 = document.getElementById('img3');
@@ -185,13 +322,7 @@ function add_product(){
     var imageName1 = document.getElementById("img1").files[0].name;
     var imageName2 = document.getElementById("img2").files[0].name;
     var imageName3 = document.getElementById("img3").files[0].name;
-
-    if(isEmpty(anh1, 'Image 1') && isEmpty(anh2, 'Image 2') && isEmpty(anh3, 'Image 3')){
-        upLoadStorage(img1, imageName1);
-        upLoadStorage(img2, imageName2);
-        upLoadStorage(img3, imageName3);
-    }
-
+    
     var total_spect = document.getElementById('total_specification_titles');
     var total_spect_1 = document.getElementById('total_fields_spec_title_1');
     var total_spect_2 = document.getElementById('total_fields_spec_title_2');
@@ -210,7 +341,7 @@ function add_product(){
     var tag_3 = document.getElementById('tag3');
     var tag_4 = document.getElementById('tag4');
 
-    var category = document.getElementById("category").value;
+    var category = cate.options[cate.selectedIndex].text;
     var product_name = name.value;
     var product_price = price.value;
     var stock_quantity = stock_qty.value;
@@ -254,28 +385,123 @@ function add_product(){
     if(tag4.length > 0){
         tags.push(tag4);
     }
+    var star_1 = 0;
+    var star_2 = 0;
+    var star_3 = 0;
+    var star_4 = 0;
+    var star_5 = 1;
+    var average_rating = 5;
+    var no_of_product_images = 3;
+    var offers_applied = 0;
+    var total_rating = 1;
 
-    // isEmpty(name, 'Tên sản phẩm ');
-    // isEmpty(price, 'Gía sản phẩm ');
-    // isEmpty(description, 'Mô tả sản phẩm');
-    // isEmpty(cutted, 'Gía cũ');
-    // isEmpty(name_discount,'Tên khuyến mãi');
-    // isEmpty(body_discount,'Nội dung khuyến mãi');
-    // isEmpty(spect_1, 'Mục 1');
-    // isEmpty(spect_2, 'Mục 2');
-    // isEmpty(name_1_spect_1, 'Trường 1');
-    // isEmpty(field_1_spect_1, 'Gía trị 1');
-    // isEmpty(name_2_spect_1, 'Trường 2');
-    // isEmpty(field_2_spect_1, 'Gía trị 2');
-    // isEmpty(name_1_spect_2, 'Trường 1');
-    // isEmpty(field_1_spect_2, 'Gía trị 1');
-    // isEmpty(name_2_spect_2, 'Trường 2');
-    // isEmpty(field_2_spect_2, 'Gía trị 2');
+    if(!isEmpty(name, 'Tên sản phẩm ') && !isEmpty(price, 'Gía sản phẩm ') && !isEmpty(description, 'Mô tả sản phẩm') && !isEmpty(cutted, 'Gía cũ') && !isEmpty(name_discount,'Tên khuyến mãi') && !isEmpty(body_discount,'Nội dung khuyến mãi') && !isEmpty(spect_1, 'Mục 1') && !isEmpty(spect_2, 'Mục 2') && !isEmpty(name_1_spect_1, 'Trường 1') && !isEmpty(field_1_spect_1, 'Gía trị 1') && !isEmpty(name_2_spect_1, 'Trường 2') && !isEmpty(field_2_spect_1, 'Gía trị 2') && !isEmpty(name_1_spect_2, 'Trường 1') && !isEmpty(field_1_spect_2, 'Gía trị 1') && !isEmpty(name_2_spect_2, 'Trường 2') && !isEmpty(field_2_spect_2, 'Gía trị 2') && !isEmpty(anh1, 'Ảnh 1') && !isEmpty(anh2, 'Ảnh 2') && !isEmpty(anh3, 'Ảnh 3') && allnumeric(price, 'Gía sản phẩm') && allnumeric(cutted, 'Gía cũ') && allnumeric(num_free_discount, 'Khuyến mãi ') && allnumeric(total_spect_1, 'Số mục 1') && allnumeric(total_spect_2, 'Số trường 2')){
+        
+        console.log("1_star: " + star_1);
+        console.log("2_star: " + star_2);
+        console.log("3_star: " + star_3);
+        console.log("4_star: " + star_4);
+        console.log("5_star: " + star_5);
+        console.log("average_rating: " + average_rating);
+        console.log("no_of_product_images: " + no_of_product_images);
+        console.log("offers_applied: " + offers_applied);
+        console.log("total_rating: " + total_rating);
+        console.log("cod: " + cod);
+        console.log("Tags: " + tags);
+        console.log("Category: " + category);
+        console.log('Product name: ' + product_name);
+        console.log('Product price: ' + product_price);
+        console.log('Product cutted: ' + product_cutted_price);
+        console.log('Product description: ' + product_desription);
+        console.log('Product name discount: ' + free_discount_name);
+        console.log('Product body discount: ' + free_discount_body);
+        console.log('Product num free discount: ' + free_discount);
+        console.log('Spect 1: ' + specification_1);
+        console.log('Spect 2: ' + specification_2);
+        
+        var docData = {
+            star_1: 0,
+            star_2: 0,
+            star_3: 0,
+            star_4: 0,
+            star_5: 5,
+            average_rating: String(5),
+            cod: Boolean(cod),
+            free_discount: Number(free_discount),
+            free_discount_title: free_discount_name,
+            free_discount_body: free_discount_body,
+            max_quantity: Number(max_quantity),
+            no_of_product_images: 3,
+            offers_applied: 0,
+            product_cutted_price: product_cutted_price,
+            product_description: product_desription,
+            product_fullname: product_name,
+            product_other_detail: product_other_detail,
+            product_price: product_price,
+            spec_title_1: specification_1,
+            spec_title_1_field_1_name: specification_1_name_1,
+            spec_title_1_field_1_value: specification_1_field_1,
+            spec_title_1_field_2_name: specification_1_name_2,
+            spec_title_1_field_2_value: specification_1_field_2,
+            spec_title_2: specification_2,
+            spec_title_2_field_1_name: specification_2_name_1,
+            spec_title_2_field_1_value: specification_2_field_1,
+            spec_title_2_field_2_name: specification_2_name_2,
+            spec_title_2_field_2_value: specification_2_field_2,
+            stock_quantity: Number(max_quantity),
+            tags: tags,
+            total_fields_spec_title_1: Number(total_fields_spec_title_1),
+            total_fields_spec_title_2: Number(total_fields_spec_title_2),
+            total_rating: Number(total_rating),
+            total_specification_titles: Number(total_specifications),
+            use_tab_layout: Boolean(use_tablayout),
+            product_image_1: '',
+            product_image_2: '',
+            product_image_3: ''
+        };
 
 
+        var newProductRef = db.collection("PRODUCTS");
+        newProductRef.add(docData).then(function(docRef) {
+            alert("Đã thêm vào PRODUCTS: ", docRef.id);
+            upLoadStorage1(img1, imageName1, docRef.id); //Add vao storage
+            upLoadStorage2(img2, imageName2, docRef.id);
+            upLoadStorage3(img3, imageName3, docRef.id);
 
-    // allnumeric(price, 'Gía sản phẩm');
-    // allnumeric(cutted, 'Gía cũ');
 
+        });// Add PRODUCTS
+       
+
+    }
+}
+
+function test(){
+            // add vao category
+            var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', 3);
+            topRef.get().then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            // var view_type = doc.get('view_type');
+                            var num_products = doc.get('num_products');
+                            // console.log(view_type);
+                            // console.log(num_products);
+                            num_products = num_products + 1;
+                            console.log(num_products);
+                            var field_id = 'product_id_' + num_products;
+                            var field_name = 'product_image_' + num_products;
+                            var field_price = 'product_price_' + num_products;
+                            var field_descr = 'product_descr_' + num_products;
+
+                            doc.add({
+                                field_id: docRef.id,
+                                field_name: product_name,
+                                field_price: product_price,
+                                field_descr: product_description
+                            }).then(function(docRef) {
+                                alert('Sản phẩm đã được thêm vào Database');
+                            });
+                        });
+            });
+            // add vao CATEGORIES
+    
 }
 
