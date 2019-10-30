@@ -35,11 +35,20 @@
                             <option  value="MOBILES">MOBILES</option>
                             <option  value="FASHION">FASHION</option>
                             <option  value="SHOES">SHOES</option>
-                            <option  value="GLASSES">GLASSES</option>
+                            <option  value="Glasses">GLASSES</option>
                             <option  value="FURNITURE">FURNITURE</option>
                             <option  value="SPEAKER">SPEAKER</option>
                         </select>
                 </div>
+                <div class="form-group">
+                    <label for="layout">Danh mục theo nhu cầu:</label>
+                    <select class="form-control" id="cateLayout" name = 'layout'>
+                        <option  value="3" selected="selected">Học Tập - Văn Phòng</option>
+                        <option  value="4">Đồ họa - Kĩ Thuật</option>
+                        <option  value="5">Laptop Gaming</option>
+                        <option  value="6">Cao Cấp Sang Trọng</option>
+                    </select>
+            </div>
         </div>
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6">
@@ -285,7 +294,7 @@
         </div>
         <div class="container">
             <div class="row justify-content-center">
-                    <button id="btnAddProduct" onclick="test()" class="btn btn-primary col-xs-12 col-sm-6 col-md-6">Thêm sản phẩm</button>
+                    <button id="btnAddProduct" onclick="add_product()" class="btn btn-primary col-xs-12 col-sm-6 col-md-6">Thêm sản phẩm</button>
             </div>
         </div>
 

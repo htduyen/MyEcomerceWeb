@@ -54,3 +54,7 @@ h1 {
     color: #6b6b6b;
     font-size: 1.5em;
 }
+.unselectable{
+    background-color: #ddd;
+    cursor: not-allowed;
+}

@@ -3,8 +3,21 @@
 // import "firebase/firestore";
 const tablebody = document.querySelector('#table_body');
 const tablebodyOrder = document.querySelector('#table_body_order');
+const table_detail = document.querySelector('#table_body_detail');
 const table_td = document.querySelector('#table_td');
 var tags = [];
+var id_product_update = document.getElementById('id_product_update');
+var name_product_update = document.getElementById('name_product_update');
+
+// data
+
+
+   
+
+    
+// data
+var select = document.getElementById('product_ids');
+var option = document.createElement("option");
 
 let tr = document.createElement('tr');
 let id = document.createElement('td');
@@ -29,6 +42,7 @@ function login(){
 }
 
 function renderProduct(doc){
+    
     let tr = document.createElement('tr');
     let id = document.createElement('td');
     
@@ -67,18 +81,24 @@ function renderProduct(doc){
         e.stopPropagation();
         let product_id = tr.getAttribute('table_row');
         console.log("Edit ID: " +  product_id);
+        var newUrl = "http://127.0.0.1:5500/startbootstrap-sb-admin-gh-pages/edit_product.html?id="+product_id + "&name="+name.textContent;
+        document.location.href = newUrl;
+
     })
 
     delete_option.addEventListener('click', (e) =>{
         e.stopPropagation();
         let product_id = tr.getAttribute('table_row');
         console.log("Remove ID: " +  product_id);
+        db.collection("PRODUCTS").doc(product_id).update({
+            stock_quantity: 0
+        }).then(function() {
+            alert("Đã gán Số Lượng bằng 0!");
+        })
     });
-
-    
-
-
 }
+
+
 
 //load all product
 db.collection("PRODUCTS").get().then((snapshot) => {
@@ -90,10 +110,46 @@ db.collection("PRODUCTS").get().then((snapshot) => {
 
 
 //////////// Load Order
+function loadDetail(doc){
+    let tr = document.createElement('tr');
+    let id_product = document.createElement('td');
+    let name_product = document.createElement('td');
+    //let image = document.createElement('td');
+    let quantity = document.createElement('td');
+    let price = document.createElement('tr');
+    let payment = document.createElement('td');
+    let ordered_date = document.createElement('td');
+    
+    tr.setAttribute('table_row_detail', doc.id);
+    id_product.textContent = doc.id;
+    name_product.textContent = doc.data().Product_Name;
+    //image.innerHTML = `<img id="image_product"  style="width: 40px; " alt="PRODUCT">`
+    quantity.textContent = doc.data().Product_Quantity;
+    price.textContent = doc.data().Product_Price;
+    payment.textContent = doc.data().Payment_Method;
+   
+    let ordered = new Date();
+    ordered =  doc.data().Ordered_date;
+    ordered_date.textContent = ordered.toDate();
+    
+    
+
+    tr.appendChild(id_product);
+    tr.appendChild(name_product);
+    //tr.appendChild(image);
+    tr.appendChild(quantity);
+    tr.appendChild(price);
+    tr.appendChild(ordered_date);
+    tr.appendChild(payment);
+    
+    table_detail.appendChild(tr);
+
+    
+}
+
 function renderOders(doc){
     let tr = document.createElement('tr');
     let id_field = document.createElement('td');
-    //id_field.id = 'id_order';
     let payment_status = document.createElement('td');
     let order_status = document.createElement('td');
     let totalItems = document.createElement('td');
@@ -103,20 +159,28 @@ function renderOders(doc){
     let delivered_option = document.createElement('td');
     let view_option = document.createElement('td');
     
-    
-    
 
     tr.setAttribute('table_row_order', doc.id);
     id_field.textContent = doc.id;
     payment_status.textContent = doc.data().Payment_Status;
-    order_status.textContent = doc.data().Order_Status;
+
+    let order_id = tr.getAttribute('table_row_order');
+    db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
+        snapshot.forEach((doc) => {
+            //var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id).get('Order_Status');
+            console.log(doc.data().Order_Status);
+            var status = doc.data().Order_Status;
+            order_status.textContent = status;
+        });
+    });
+    // order_status.textContent = doc.data().Order_Status;
     totalItems.textContent = doc.data().Total_Items;
     total_amount.textContent = doc.data().Total_Amount;
     packed_option.innerHTML = `<h3><i id="packed_order" style="justify-content: center; color: blue"   class="fas fa-box" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
     shipped_option.innerHTML = `<h3><i id="shipped_order" style="color: rgb(8, 173, 82)"  class="fas fa-shipping-fast" data-toggle="tooltip" data-placement="right" title="Shipped"></i> </h3>`;
-    delivered_option.innerHTML = `<h3><i id="shipped_order" style="justify-content: center; color: blue"   class="fas fa-people-carry" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
+    delivered_option.innerHTML = `<h3><i id="delivered_order" style="justify-content: center; color: blue"   class="fas fa-people-carry" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
 
-    view_option.innerHTML = `<h3><i id="delivered_order" style="color: rgb(236, 146, 27)" class="fas fa-angle-double-right" data-toggle="tooltip" data-placement="bottom" title="Delivered"></i> </h3>`;
+    view_option.innerHTML = `<h3><i id="view_detail_order" style="color: rgb(236, 146, 27)" class="fas fa-angle-double-right" data-toggle="tooltip" data-placement="bottom" title="Delivered"></i> </h3>`;
 
     tr.appendChild(id_field);
     tr.appendChild(payment_status);
@@ -128,34 +192,74 @@ function renderOders(doc){
     tr.appendChild(delivered_option);
     tr.appendChild(view_option);
     
-    
     tablebodyOrder.appendChild(tr);
 
+    // var btn_packed = document.getElementById('packed_order');
+    // var btn_shiped = document.getElementById('shipped_order');
+    // var btn_delived = document.getElementById('delivered_order');
+    
     packed_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
         console.log("Packed ID: " +  order_id);
-        db.collection('ORDERS').doc(order_id).collection('OrderItems').doc().update({
-            Order_Status: 'Packed',
-            Packed_date: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(function() {
-            console.log("Document successfully updated!");
-        })
+        db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+                var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id);
+                return ref.update({
+                    Order_Status: "Packed",
+                    Packed_date: firebase.firestore.Timestamp.now()
+                });
+            });
+        });
+        
     });
+    
     shipped_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
         console.log("Shipped ID: " +  order_id);
+        db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+                var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id);
+                return ref.update({
+                    Order_Status: "Shipped",
+                    Shipped_date: firebase.firestore.Timestamp.now()
+                });
+            });
+        });
     });
     delivered_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
         console.log("Delivered ID: " +  order_id);
+        db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+                var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id);
+                return ref.update({
+                    Order_Status: "Delivered",
+                    Delivered_date: firebase.firestore.Timestamp.now()
+                });
+            });
+        });
     });
     view_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
         console.log("View ID: " +  order_id);
+        db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
+            snapshot.forEach((doc) => {
+                db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id).get().then(function(product) {
+                    if (product.exists) {
+                        loadDetail(product);
+                    } else {
+                        console.log("No such document!");
+                    }
+                }).catch(function(error) {
+                    console.log("Error getting document:", error);
+                });;
+                
+            });
+        });
     });
 
 
@@ -190,17 +294,15 @@ function allLetter(name){
 // kiem tra input type number
 function allnumeric(name, field){
       var numbers = /^[0-9]+$/;
-      if(!name.value.match(numbers))
+      if(!name.match(numbers))
       {
         alert('Hãy nhập số vào ' + field  + " !");
-        return false;
-      }else{
-          return true;
+        return true;
       }
    } 
  // kiem tra input rỗng  
 function isEmpty(inputtx, field) {
-    if (inputtx.value.length == 0){ 
+    if (inputtx.length == 0){ 
         alert(field + " không rỗng!");  	
         return true; 
     }
@@ -252,10 +354,13 @@ function upLoadStorage1(image, imageName, id){
       }, function(error) {
       }, function() {
         uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-          console.log('File available at', downloadURL);
-          db.collection("PRODUCTS").doc(id).update({
-            product_image_1: downloadURL
-        }) 
+            console.log('File available at', downloadURL);
+            db.collection("PRODUCTS").doc(id).update({
+                product_image_1: downloadURL
+            });
+
+            
+
         });
       });
 }
@@ -296,22 +401,44 @@ function upLoadStorage3(image, imageName, id){
       });
 }
 function add_product(){
-
-
     var cate = document.getElementById('category');
-    var tab = document.getElementById("use_tablayout");
-    var alb = document.getElementById('cod');
-    var name  = document.getElementById('product_name');
-    var price = document.getElementById('product_price');
-    var stock_qty = document.getElementById('stock_quantity');
-    var max_qty = document.getElementById('max_quantity');
-    var description = document.getElementById('product_description');
-    var cutted =  document.getElementById('product_cutted_price');
-    var name_discount = document.getElementById('free_discount_name');
-    var body_discount = document.getElementById('free_discount_body');;
-    var num_free_discount = document.getElementById('free_discount');
-    var other_detail = document.getElementById('product_other_detail');
+    var layout = document.getElementById('cateLayout');
 
+    var alb = document.getElementById('cod');
+    var tab = document.getElementById("use_tablayout");
+    var category =  cate.options[cate.selectedIndex].value;
+    var cateLayout = Number(layout.options[layout.selectedIndex].value);
+    var product_name = document.getElementById('product_name').value;
+    var product_price = document.getElementById('product_price').value;
+    var stock_quantity = document.getElementById('stock_quantity').value;
+    var max_quantity = document.getElementById('max_quantity').value;
+    var product_desription = document.getElementById('product_description').value;
+    var product_cutted_price = document.getElementById('product_cutted_price').value;
+    var use_tablayout = tab.options[tab.selectedIndex].value;
+    var cod = alb.options[alb.selectedIndex].value;
+    var free_discount_name = document.getElementById('free_discount_name').value;
+    var free_discount_body = document.getElementById('free_discount_body').value;
+    var free_discount = document.getElementById('free_discount').value;
+    var product_other_detail = document.getElementById('product_other_detail').value;
+
+    var total_specifications = document.getElementById('total_specification_titles').value;
+    var total_fields_spec_title_1 = document.getElementById('total_fields_spec_title_1').value;
+    var total_fields_spec_title_2 = document.getElementById('total_fields_spec_title_2').value;
+    var specification_1 = document.getElementById('spec_title_1').value;
+    var specification_2 = document.getElementById('spec_title_2').value;
+    var specification_1_name_1 = document.getElementById('spec_title_1_field_1_name').value;
+    var specification_1_field_1 = document.getElementById('spec_title_1_field_1_value').value;
+    var specification_1_name_2 = document.getElementById('spec_title_1_field_2_name').value;
+    var specification_1_field_2 = document.getElementById('spec_title_1_field_2_value').value;
+    var specification_2_name_1 = document.getElementById('spec_title_2_field_1_name').value;
+    var specification_2_field_1 = document.getElementById('spec_title_2_field_1_value').value;
+    var specification_2_name_2 = document.getElementById('spec_title_2_field_2_name').value;
+    var specification_2_field_2 = document.getElementById('spec_title_2_field_2_value').value;
+    var tag1 = document.getElementById('tag1').value;
+    var tag2 = document.getElementById('tag2').value;
+    var tag3 = document.getElementById('tag3').value;
+    var tag4 = document.getElementById('tag4').value;
+    
     var anh1 = document.getElementById('img1');
     var anh2 = document.getElementById('img2');
     var anh3 = document.getElementById('img3');
@@ -322,56 +449,6 @@ function add_product(){
     var imageName1 = document.getElementById("img1").files[0].name;
     var imageName2 = document.getElementById("img2").files[0].name;
     var imageName3 = document.getElementById("img3").files[0].name;
-    
-    var total_spect = document.getElementById('total_specification_titles');
-    var total_spect_1 = document.getElementById('total_fields_spec_title_1');
-    var total_spect_2 = document.getElementById('total_fields_spec_title_2');
-    var spect_1 = document.getElementById('spec_title_1');
-    var spect_2 = document.getElementById('spec_title_2');
-    var name_1_spect_1 = document.getElementById('spec_title_1_field_1_name');
-    var field_1_spect_1 = document.getElementById('spec_title_1_field_1_value');
-    var name_2_spect_1 = document.getElementById('spec_title_1_field_2_name');
-    var field_2_spect_1 = document.getElementById('spec_title_1_field_2_value');
-    var name_1_spect_2 = document.getElementById('spec_title_2_field_1_name');
-    var field_1_spect_2 = document.getElementById('spec_title_2_field_1_value');
-    var name_2_spect_2 = document.getElementById('spec_title_2_field_2_name');
-    var field_2_spect_2 = document.getElementById('spec_title_2_field_2_value');
-    var tag_1 = document.getElementById('tag1');
-    var tag_2 = document.getElementById('tag2');
-    var tag_3 = document.getElementById('tag3');
-    var tag_4 = document.getElementById('tag4');
-
-    var category = cate.options[cate.selectedIndex].text;
-    var product_name = name.value;
-    var product_price = price.value;
-    var stock_quantity = stock_qty.value;
-    var max_quantity = max_qty.value;
-    var product_desription = description.value;
-    var product_cutted_price = cutted.value;
-    var use_tablayout = tab.options[tab.selectedIndex].value;
-    var cod = alb.options[alb.selectedIndex].value;
-    var free_discount_name = name_discount.value;
-    var free_discount_body = body_discount.value;
-    var free_discount = num_free_discount.value;
-    var product_other_detail = other_detail.value;
-
-    var total_specifications = total_spect.value;
-    var total_fields_spec_title_1 = total_spect_1.value;
-    var total_fields_spec_title_2 = total_spect_2.value;
-    var specification_1 = spect_1.value;
-    var specification_2 = spect_2.value;
-    var specification_1_name_1 = name_1_spect_1.value;
-    var specification_1_field_1 = field_1_spect_1.value;
-    var specification_1_name_2 = name_2_spect_1.value;
-    var specification_1_field_2 = field_2_spect_1.value;
-    var specification_2_name_1 = name_1_spect_2.value;
-    var specification_2_field_1 = field_1_spect_2.value;
-    var specification_2_name_2 = name_2_spect_2.value;
-    var specification_2_field_2 = field_2_spect_2.value;
-    var tag1 = tag_1.value;
-    var tag2 = tag_2.value;
-    var tag3 = tag_3.value;
-    var tag4 = tag_4.value;
 
     if(tag1.length > 0){
         tags.push(tag1);
@@ -385,31 +462,10 @@ function add_product(){
     if(tag4.length > 0){
         tags.push(tag4);
     }
-    var star_1 = 0;
-    var star_2 = 0;
-    var star_3 = 0;
-    var star_4 = 0;
-    var star_5 = 1;
-    var average_rating = 5;
-    var no_of_product_images = 3;
-    var offers_applied = 0;
-    var total_rating = 1;
 
-    if(!isEmpty(name, 'Tên sản phẩm ') && !isEmpty(price, 'Gía sản phẩm ') && !isEmpty(description, 'Mô tả sản phẩm') && !isEmpty(cutted, 'Gía cũ') && !isEmpty(name_discount,'Tên khuyến mãi') && !isEmpty(body_discount,'Nội dung khuyến mãi') && !isEmpty(spect_1, 'Mục 1') && !isEmpty(spect_2, 'Mục 2') && !isEmpty(name_1_spect_1, 'Trường 1') && !isEmpty(field_1_spect_1, 'Gía trị 1') && !isEmpty(name_2_spect_1, 'Trường 2') && !isEmpty(field_2_spect_1, 'Gía trị 2') && !isEmpty(name_1_spect_2, 'Trường 1') && !isEmpty(field_1_spect_2, 'Gía trị 1') && !isEmpty(name_2_spect_2, 'Trường 2') && !isEmpty(field_2_spect_2, 'Gía trị 2') && !isEmpty(anh1, 'Ảnh 1') && !isEmpty(anh2, 'Ảnh 2') && !isEmpty(anh3, 'Ảnh 3') && allnumeric(price, 'Gía sản phẩm') && allnumeric(cutted, 'Gía cũ') && allnumeric(num_free_discount, 'Khuyến mãi ') && allnumeric(total_spect_1, 'Số mục 1') && allnumeric(total_spect_2, 'Số trường 2')){
-        
-        console.log("1_star: " + star_1);
-        console.log("2_star: " + star_2);
-        console.log("3_star: " + star_3);
-        console.log("4_star: " + star_4);
-        console.log("5_star: " + star_5);
-        console.log("average_rating: " + average_rating);
-        console.log("no_of_product_images: " + no_of_product_images);
-        console.log("offers_applied: " + offers_applied);
-        console.log("total_rating: " + total_rating);
-        console.log("cod: " + cod);
-        console.log("Tags: " + tags);
-        console.log("Category: " + category);
-        console.log('Product name: ' + product_name);
+    var total_rating = 4;
+    
+    console.log('Product name: ' + product_name);
         console.log('Product price: ' + product_price);
         console.log('Product cutted: ' + product_cutted_price);
         console.log('Product description: ' + product_desription);
@@ -418,14 +474,16 @@ function add_product(){
         console.log('Product num free discount: ' + free_discount);
         console.log('Spect 1: ' + specification_1);
         console.log('Spect 2: ' + specification_2);
-        
-        var docData = {
+
+    if(!isEmpty(product_name, 'Tên sản phẩm ') && !isEmpty(product_price, 'Gía sản phẩm ') && !isEmpty(product_description, 'Mô tả sản phẩm') && !isEmpty(product_cutted_price, 'Gía cũ') && !isEmpty(free_discount_name,'Tên khuyến mãi') && !isEmpty(free_discount_body,'Nội dung khuyến mãi') && !isEmpty(specification_2, 'Mục 2') ){      
+
+         var docData = {
             star_1: 0,
             star_2: 0,
-            star_3: 0,
+            star_3: 2,
             star_4: 0,
-            star_5: 5,
-            average_rating: String(5),
+            star_5: 2,
+            average_rating: '4.0',
             cod: Boolean(cod),
             free_discount: Number(free_discount),
             free_discount_title: free_discount_name,
@@ -448,7 +506,7 @@ function add_product(){
             spec_title_2_field_1_value: specification_2_field_1,
             spec_title_2_field_2_name: specification_2_name_2,
             spec_title_2_field_2_value: specification_2_field_2,
-            stock_quantity: Number(max_quantity),
+            stock_quantity: Number(stock_quantity),
             tags: tags,
             total_fields_spec_title_1: Number(total_fields_spec_title_1),
             total_fields_spec_title_2: Number(total_fields_spec_title_2),
@@ -460,48 +518,142 @@ function add_product(){
             product_image_3: ''
         };
 
+        console.log(docData);
 
         var newProductRef = db.collection("PRODUCTS");
         newProductRef.add(docData).then(function(docRef) {
+           var product_id_add = docRef.id;
             alert("Đã thêm vào PRODUCTS: ", docRef.id);
             upLoadStorage1(img1, imageName1, docRef.id); //Add vao storage
             upLoadStorage2(img2, imageName2, docRef.id);
             upLoadStorage3(img3, imageName3, docRef.id);
 
 
-        });// Add PRODUCTS
-       
-
-    }
-}
-
-function test(){
-            // add vao category
-            var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', 3);
+            // add vao CATEGORIES
+            console.log('Cate Layout: '  + cateLayout);
+            var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', cateLayout);
             topRef.get().then((querySnapshot) => {
                         querySnapshot.forEach((doc) => {
-                            // var view_type = doc.get('view_type');
+                            var view_type = doc.get('view_type');
                             var num_products = doc.get('num_products');
-                            // console.log(view_type);
-                            // console.log(num_products);
-                            num_products = num_products + 1;
-                            console.log(num_products);
-                            var field_id = 'product_id_' + num_products;
-                            var field_name = 'product_image_' + num_products;
-                            var field_price = 'product_price_' + num_products;
-                            var field_descr = 'product_descr_' + num_products;
-
-                            doc.add({
-                                field_id: docRef.id,
-                                field_name: product_name,
-                                field_price: product_price,
-                                field_descr: product_description
-                            }).then(function(docRef) {
-                                alert('Sản phẩm đã được thêm vào Database');
+                            var doc_id = doc.id;
+                            
+                            db.collection("PRODUCTS").doc(product_id_add).get().then(function(doc_data) {
+                                var product_image_add =  doc_data.data().product_image_1;
+                                num_products = num_products + 1;
+                                db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').doc(doc_id).update({
+                                    ['product_id_' + num_products]: docRef.id,
+                                    ['product_image_' + num_products]: product_image_add,
+                                    ['product_price_' + num_products]: product_price,
+                                    ['product_name_' + num_products]: docData.product_fullname,
+                                    num_products: num_products,
+                                    ['product_descr_' + num_products]: docData.product_description
+                                }).then(function(docRef) {
+                                    alert('Sản phẩm đã được thêm vào Category');
+                                });
                             });
                         });
             });
             // add vao CATEGORIES
+        });
+        // Add PRODUCTS
+
+    }
+}//add product
+
+function test(){
+           
     
 }
 
+//Update 
+function parseURLParams(url) {
+    var queryStart = url.indexOf("?") + 1,
+        queryEnd   = url.indexOf("#") + 1 || url.length + 1,
+        query = url.slice(queryStart, queryEnd - 1),
+        pairs = query.replace(/\+/g, " ").split("&"),
+        parms = {}, i, n, v, nv;
+
+    if (query === url || query === "") return;
+
+    for (i = 0; i < pairs.length; i++) {
+        nv = pairs[i].split("=", 2);
+        n = decodeURIComponent(nv[0]);
+        v = decodeURIComponent(nv[1]);
+
+        if (!parms.hasOwnProperty(n)) parms[n] = [];
+        parms[n].push(nv.length === 2 ? v : null);
+    }
+    console.log(parms);
+    
+    return parms;
+}
+
+var id_array =  parseURLParams(window.location.href);
+var id_update = id_array.id[0];
+
+name_product_update.value = id_array.name[0];
+id_product_update.value = id_array.id[0];
+
+function update_product(){
+    
+    var alb = document.getElementById('cod');
+    //var category =  cate.options[cate.selectedIndex].value;
+    var product_name = document.getElementById('product_name').value;
+    var product_price = document.getElementById('product_price').value;
+    var product_desription = document.getElementById('product_description').value;
+    var product_cutted_price = document.getElementById('product_cutted_price').value;
+    var cod = alb.options[alb.selectedIndex].value;
+    var free_discount_name = document.getElementById('free_discount_name').value;
+    var free_discount_body = document.getElementById('free_discount_body').value;
+    var free_discount = document.getElementById('free_discount').value;
+
+    var tag1 = document.getElementById('tag1').value;
+    var tag2 = document.getElementById('tag2').value;
+    var tag3 = document.getElementById('tag3').value;
+    var tag4 = document.getElementById('tag4').value;
+
+    if(tag1.length > 0){
+        tags.push(tag1);
+    }
+    if(tag2.length > 0){
+        tags.push(tag2);
+    }
+    if(tag3.length > 0){
+        tags.push(tag3);
+    }
+    if(tag4.length > 0){
+        tags.push(tag4);
+    }
+
+    if(!isEmpty(product_name, 'Tên sản phẩm') && !isEmpty(product_price, 'Gía')){
+        db.collection("PRODUCTS").doc(id_update).update({
+    
+            cod: Boolean(cod),
+            free_discount: Number(free_discount),
+            free_discount_title: free_discount_name,
+            free_discount_body: free_discount_body,
+            product_cutted_price: product_cutted_price,
+            product_description: product_desription,
+            product_fullname: product_name,
+            product_price: product_price,
+            tags: tags
+            
+        }).then((snapshot) => {
+            alert('Đã update thành công');
+        });
+    }
+
+
+   console.log('cod: ' + cod);
+   console.log('num:' +  free_discount);
+   console.log('titlr: ' + free_discount_name );
+   console.log('body: ' + free_discount_body);
+   console.log('cutted: ' + product_cutted_price);
+   console.log('descr: ' + product_desription);
+   console.log('name: ' + product_name);
+   console.log('product_price: ' + product_price);
+   console.log('tags: ' + tags);
+}
+
+//Update
