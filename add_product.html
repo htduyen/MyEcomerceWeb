@@ -29,13 +29,14 @@
         <div class="row justify-content-center">
                 <div class="form-group">
                         <label for="use_tablayout">Danh mục:</label>
-                        <select class="form-control" id="category">
-                            <option  value="LAPTOP" selected="selected">Laptop</option>
+                        <select class="form-control" id="category" onchange="changeCate()">
+                            <option  value="HOME">HOME</option>
+                            <option  value="LAPTOP">Laptop</option>
                             <option  value="TV">TV</option>
-                            <option  value="MOBILES">MOBILES</option>
+                            <option  value="SMARTPHONE">MOBILES</option>
+                            <option  value="GLASSES">GLASSES</option>
                             <option  value="FASHION">FASHION</option>
                             <option  value="SHOES">SHOES</option>
-                            <option  value="Glasses">GLASSES</option>
                             <option  value="FURNITURE">FURNITURE</option>
                             <option  value="SPEAKER">SPEAKER</option>
                         </select>
@@ -43,10 +44,10 @@
                 <div class="form-group">
                     <label for="layout">Danh mục theo nhu cầu:</label>
                     <select class="form-control" id="cateLayout" name = 'layout'>
-                        <option  value="3" selected="selected">Học Tập - Văn Phòng</option>
+                        <!-- <option  value="3" selected="selected">Học Tập - Văn Phòng</option>
                         <option  value="4">Đồ họa - Kĩ Thuật</option>
                         <option  value="5">Laptop Gaming</option>
-                        <option  value="6">Cao Cấp Sang Trọng</option>
+                        <option  value="6">Cao Cấp Sang Trọng</option> -->
                     </select>
             </div>
         </div>

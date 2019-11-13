@@ -1,18 +1,154 @@
 // import { storage } from "firebase";
 // // Required for side-effects
 // import "firebase/firestore";
+$(document).ready(function () {
+    $('#dtVerticalScrollExample').DataTable({
+    "scrollY": "300px",
+    "scrollCollapse": true,
+    });
+    $('.dataTables_length').addClass('bs-select');
+});
+
+$(document).ready(function () {
+    $('#rollOrder').DataTable({
+    "scrollY": "250px",
+    "scrollCollapse": true,
+    });
+    $('.dataTables_length').addClass('bs-select');
+});
+
 const tablebody = document.querySelector('#table_body');
 const tablebodyOrder = document.querySelector('#table_body_order');
 const table_detail = document.querySelector('#table_body_detail');
 const table_td = document.querySelector('#table_td');
+const table_thongke = document.querySelector('#table_body_thongke');
+
 var tags = [];
+var product_image_add = '';
 var id_product_update = document.getElementById('id_product_update');
 var name_product_update = document.getElementById('name_product_update');
 
 // data
+function ClearOptions(id)
+{
+	document.getElementById(id).options.length = 0;
+}
 
-
-   
+function changeCate()   {
+    
+    var cate = document.getElementById('category');
+    var cateLayout = document.getElementById('cateLayout');
+    var length = cateLayout.options.length;
+    for ( let i = 0; i < length; i++) {
+        cateLayout.options[i] = null;
+    }
+    var cateName = cate.options[cate.selectedIndex].value;
+    var option;
+    if(cateName == 'HOME'){
+        document.getElementById('cateLayout').options.length = 0;
+        let index_home = [3,4,6];
+        for(let i of index_home){
+            let topRef = db.collection('CATEGORIES').doc(cateName).collection('TOP_DEALS').where('index', '==', i);
+            topRef.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                    option  = document.createElement("option");
+                    option.text = doc.data().group_product_title;
+                    option.value = i;
+                    console.log(doc.data().group_product_title + " - " + i );
+                    cateLayout.appendChild(option);
+                });
+            });
+            
+        //cateLayout.append(option);
+        }
+        
+    }
+    if(cateName == 'LAPTOP'){
+        document.getElementById('cateLayout').options.length = 0;
+        let index_laptop= [3,4,5,6];
+        
+        for(let i of index_laptop){
+            let topRef = db.collection('CATEGORIES').doc(cateName).collection('TOP_DEALS').where('index', '==', i);
+            topRef.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                        option  = document.createElement("option");
+                        option.text = doc.data().group_product_title;
+                        option.value = i;
+                        console.log(doc.data().group_product_title + " - " + i );
+                        cateLayout.appendChild(option);
+                });
+            });
+            
+        }
+    }
+    if(cateName == 'TV'){
+        document.getElementById('cateLayout').options.length = 0;
+        let index_tv= [3,4,5];
+        
+        for(let i of index_tv){
+            let topRef = db.collection('CATEGORIES').doc(cateName).collection('TOP_DEALS').where('index', '==', i);
+            topRef.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                        option  = document.createElement("option");
+                        option.text = doc.data().group_product_title;
+                        option.value = i;
+                        console.log(doc.data().group_product_title + " - " + i );
+                        cateLayout.appendChild(option);
+                });
+            });
+            
+        }
+    }
+    if(cateName == 'SMARTPHONE'){
+        document.getElementById('cateLayout').options.length = 0;
+        let index_phone = [3,4,5,6];
+        for(let i of index_phone){
+            let topRef = db.collection('CATEGORIES').doc(cateName).collection('TOP_DEALS').where('index', '==', i);
+            topRef.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                    option  = document.createElement("option");
+                    option.text = doc.data().group_product_title;
+                    option.value = i;
+                    console.log(doc.data().group_product_title + " - " + i );
+                    cateLayout.appendChild(option);
+                });
+            });
+            
+        //cateLayout.append(option);
+        }
+    }
+    if(cateName == 'FASHION'){
+        alert('FASHION');
+    }
+    if(cateName == 'SHOES'){
+        alert('shoes')
+    }
+    if(cateName == 'GLASSES'){
+        document.getElementById('cateLayout').options.length = 0;
+        let index_glasses = [3,4,5,6];
+        for(let i of index_glasses){
+            let topRef = db.collection('CATEGORIES').doc(cateName).collection('TOP_DEALS').where('index', '==', i);
+            topRef.get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                    option  = document.createElement("option");
+                    option.text = doc.data().group_product_title;
+                    option.value = i;
+                    console.log(doc.data().group_product_title + " - " + i );
+                    cateLayout.appendChild(option);
+                });
+            });
+            
+        //cateLayout.append(option);
+        }
+    }
+    if(cateName == 'FURNITURE'){
+        alert('FURNITURE');
+    }
+    if(cateName == 'SPEAKER'){
+        alert('SPEAKER');
+    }
+    
+}
 
     
 // data
@@ -63,8 +199,8 @@ function renderProduct(doc){
     average_ratting.textContent = doc.data().average_rating;
     total_ratting.textContent = doc.data().total_rating;
     
-    edit_option.innerHTML = `<i id="edit_product" style="color: blue"  class="far fa-edit"></i> Edit`;
-    delete_option.innerHTML = `<i id="delete_product" style="color: red"  class="far fa-trash-alt"></i> Delete`;
+    edit_option.innerHTML = `<h3><i id="edit_product" data-toggle="tooltip" data-placement="left" title="Edit" style="color: blue"  class="far fa-edit"></i></h3> `;
+    delete_option.innerHTML = `<h3><i id="delete_product" data-toggle="tooltip" data-placement="left" title="Delete" style="color: red"  class="far fa-trash-alt"></i> </3>`;
 
     tr.appendChild(id);
     tr.appendChild(name);
@@ -343,8 +479,35 @@ function changeUseTabFunction(){
         alert('KHong dung');
     }
 }
+function changeUseMonthFunction(){
+    var month_opt = document.getElementById('month').value;
+    console.log(month_opt);
+
+    //var month = new 
+    var month_array = [];
+    db.collection("ORDERS").get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            var time_data = doc.data().time_ordered;
+            console.log('ID: ' + doc.id + " time: " + time_data);
+            var month = new Date(time_data);
+            console.log(month);
+        });
+    })
+    .catch(function(error) {
+        console.log("Error getting documents: ", error);
+    });
+
+
+}
 function upLoadStorage1(image, imageName, id){  
-     
+    var cate = document.getElementById('category');
+    var layout = document.getElementById('cateLayout');
+    var category =  cate.options[cate.selectedIndex].value;
+    var cateLayout = Number(layout.options[layout.selectedIndex].value);
+    var product_name = document.getElementById('product_name').value;
+    var product_price = document.getElementById('product_price').value;
+    var product_desription = document.getElementById('product_description').value;
     let storageRef = firebase.storage().ref('Products/' + imageName);
    // mang.push(storageRef.getDownloadURL());
     var uploadTask = storageRef.put(image);
@@ -359,10 +522,40 @@ function upLoadStorage1(image, imageName, id){
                 product_image_1: downloadURL
             });
 
+            // add vao CATEGORIES
+            console.log('Cate Layout: '  + cateLayout);
+            console.log('Cate: ' +   category)
+            var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', cateLayout);
+            topRef.get().then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            var view_type = doc.get('view_type');
+                            var num_products = doc.get('num_products');
+                            var doc_id = doc.id;
+                            
+                            db.collection("PRODUCTS").doc(id).get().then(function(doc_data) {
+                                //product_image_add =  doc_data.data().product_image_1;
+                                //console.log('Image added:' + product_image_add);
+                                num_products = num_products + 1;
+                                db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').doc(doc_id).update({
+                                    ['product_id_' + num_products]: id,
+                                    ['product_image_' + num_products]: downloadURL,
+                                    ['product_price_' + num_products]: product_price,
+                                    ['product_name_' + num_products]: product_name,
+                                    num_products: num_products,
+                                    ['product_descr_' + num_products]: product_desription
+                                }).then(function(docRef) {
+                                    alert('Sản phẩm đã được thêm vào Category');
+                                });
+                            });
+                        });
+            });
+            // add vao CATEGORIES
             
 
         });
       });
+
+
 }
 function upLoadStorage2(image, imageName, id){  
      
@@ -383,7 +576,7 @@ function upLoadStorage2(image, imageName, id){
       });
 }
 function upLoadStorage3(image, imageName, id){  
-     
+    
     let storageRef = firebase.storage().ref('Products/' + imageName);
    // mang.push(storageRef.getDownloadURL());
     var uploadTask = storageRef.put(image);
@@ -399,6 +592,13 @@ function upLoadStorage3(image, imageName, id){
         }) 
         });
       });
+
+
+}
+function getImageurlAdded(id){
+    db.collection("PRODUCTS").doc(id).get().then(function(doc) {
+        product_image_add = doc.data().product_image_1
+    });
 }
 function add_product(){
     var cate = document.getElementById('category');
@@ -528,43 +728,40 @@ function add_product(){
             upLoadStorage2(img2, imageName2, docRef.id);
             upLoadStorage3(img3, imageName3, docRef.id);
 
-
-            // add vao CATEGORIES
-            console.log('Cate Layout: '  + cateLayout);
-            var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', cateLayout);
-            topRef.get().then((querySnapshot) => {
-                        querySnapshot.forEach((doc) => {
-                            var view_type = doc.get('view_type');
-                            var num_products = doc.get('num_products');
-                            var doc_id = doc.id;
+            getImageurlAdded(docRef.id);
+            // // add vao CATEGORIES
+            // console.log('Cate Layout: '  + cateLayout);
+            // console.log('Cate: ' +   category)
+            // var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', cateLayout);
+            // topRef.get().then((querySnapshot) => {
+            //             querySnapshot.forEach((doc) => {
+            //                 var view_type = doc.get('view_type');
+            //                 var num_products = doc.get('num_products');
+            //                 var doc_id = doc.id;
                             
-                            db.collection("PRODUCTS").doc(product_id_add).get().then(function(doc_data) {
-                                var product_image_add =  doc_data.data().product_image_1;
-                                num_products = num_products + 1;
-                                db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').doc(doc_id).update({
-                                    ['product_id_' + num_products]: docRef.id,
-                                    ['product_image_' + num_products]: product_image_add,
-                                    ['product_price_' + num_products]: product_price,
-                                    ['product_name_' + num_products]: docData.product_fullname,
-                                    num_products: num_products,
-                                    ['product_descr_' + num_products]: docData.product_description
-                                }).then(function(docRef) {
-                                    alert('Sản phẩm đã được thêm vào Category');
-                                });
-                            });
-                        });
-            });
-            // add vao CATEGORIES
+            //                 db.collection("PRODUCTS").doc(product_id_add).get().then(function(doc_data) {
+            //                     product_image_add =  doc_data.data().product_image_1;
+            //                     console.log('Image added:' + product_image_add);
+            //                     num_products = num_products + 1;
+            //                     db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').doc(doc_id).update({
+            //                         ['product_id_' + num_products]: docRef.id,
+            //                         ['product_image_' + num_products]: product_image_add,
+            //                         ['product_price_' + num_products]: product_price,
+            //                         ['product_name_' + num_products]: docData.product_fullname,
+            //                         num_products: num_products,
+            //                         ['product_descr_' + num_products]: docData.product_description
+            //                     }).then(function(docRef) {
+            //                         alert('Sản phẩm đã được thêm vào Category');
+            //                     });
+            //                 });
+            //             });
+            // });
+            // // add vao CATEGORIES
         });
         // Add PRODUCTS
 
     }
 }//add product
-
-function test(){
-           
-    
-}
 
 //Update 
 function parseURLParams(url) {
@@ -645,15 +842,16 @@ function update_product(){
     }
 
 
-   console.log('cod: ' + cod);
-   console.log('num:' +  free_discount);
-   console.log('titlr: ' + free_discount_name );
-   console.log('body: ' + free_discount_body);
-   console.log('cutted: ' + product_cutted_price);
-   console.log('descr: ' + product_desription);
-   console.log('name: ' + product_name);
-   console.log('product_price: ' + product_price);
-   console.log('tags: ' + tags);
+//    console.log('cod: ' + cod);
+//    console.log('num:' +  free_discount);
+//    console.log('titlr: ' + free_discount_name );
+//    console.log('body: ' + free_discount_body);
+//    console.log('cutted: ' + product_cutted_price);
+//    console.log('descr: ' + product_desription);
+//    console.log('name: ' + product_name);
+//    console.log('product_price: ' + product_price);
+//    console.log('tags: ' + tags);
 }
 
 //Update
+
