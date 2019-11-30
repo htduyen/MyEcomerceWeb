@@ -1,4 +1,5 @@
 //index
+
 var num_users_admin = 0;
 db.collection("USERS").get().then((querySnapshot) => {
     querySnapshot.forEach((doc) => {
@@ -24,7 +25,7 @@ db.collection("ORDERS").get().then((querySnapshot) => {
 });
 
 var order_cancel_request_admin = 0;
-db.collection("CANCELLED ORDERS").get().then((querySnapshot) => {
+db.collection("CANCELLED ORDERS").where("Order_Cancelled", "==", false).get().then((querySnapshot) => {
     querySnapshot.forEach((doc) => {
         order_cancel_request_admin++;
     });
@@ -63,7 +64,7 @@ db.collection("USERS").get().then((querySnapshot) => {
                 
                 querySnapshot.forEach((doc) => {
                     num_orders_of_user++;
-                    console.log(`${doc.id} => ${doc.data()}`);
+                    //console.log(`${doc.id} => ${doc.data()}`);
                 });
                 console.log(num_orders_of_user);
                 let result = confirm("Khách hàng này có " + num_orders_of_user + ' đơn đặt hàng bạn có chắc muốn xóa không!'); 
@@ -73,10 +74,11 @@ db.collection("USERS").get().then((querySnapshot) => {
                     }).catch(function(error) {
                         console.error("Lỗi xóa người dùng: ", error);
                     });
+                   
                 } else { 
                     doc = "Cancel was pressed."; 
                 } 
-                console.log(doc); 
+                //console.log(doc); 
                 });
         })
     });
@@ -85,3 +87,149 @@ db.collection("USERS").get().then((querySnapshot) => {
 
 
 //index
+var type_dis;
+function changeOptionDiscount(){
+    type_dis = document.getElementById('typediscount').value;
+    console.log('Type dis: ' + type_dis);
+    document.getElementById('notification_award').style.display = 'none'; 
+    if(type_dis == 'flat'){
+        document.getElementById('discount').style.display = 'none';
+        document.getElementById('flat').style.display = 'block';
+    }else{
+        document.getElementById('discount').style.display = 'block';
+        document.getElementById('flat').style.display = 'none';
+    }
+}
+
+function add_discount(){
+
+    let body =document.getElementById('discount_body').value;
+    let lower = document.getElementById('lower_limit').value;
+    let upper = document.getElementById('upper_limit').value;
+    let amount = document.getElementById('amount').value;
+    let percent = document.getElementById('percent').value;
+    let date = document.getElementById('date').value;
+
+    let awardDiscount = {
+        alreadlyUse: false,
+        percent: String(percent),
+        body: String(body),
+        lower_limit: String(lower),
+        type: 'Discount',
+        upper_limit: String(upper),
+        validity: firebase.firestore.Timestamp.fromDate(new Date(date))
+    }
+
+    let awardFlat = {
+        alreadlyUse: false,
+        amount: String(amount),
+        body: String(body),
+        lower_limit: String(lower),
+        type: 'Flat',
+        upper_limit: String(upper),
+        validity: firebase.firestore.Timestamp.fromDate(new Date(date))
+    }
+
+
+    db.collection("USERS").get().then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            //console.log(doc.id, " ==> ", doc.data());
+            let id = doc.id;
+            if(type_dis == 'flat'){
+                db.collection("USERS").doc(id).collection('USER_REWARDS').where('type', '==', 'Flat').get()
+                .then(function(querySnapshot) {
+                    querySnapshot.forEach(function(doc) {
+                        let doc_id = doc.id;
+                        db.collection("USERS").doc(id).collection('USER_REWARDS').doc(doc_id).set(awardFlat)
+                        .then(function() {
+                            document.getElementById('discount_body').value = '' ;
+                            document.getElementById('lower_limit').value = '3000000';
+                            document.getElementById('upper_limit').value ='50000000' ;
+                            document.getElementById('amount').value = '500000';
+                            document.getElementById('percent').value ='10';
+                            document.getElementById('date').value =Date.now();
+                            document.getElementById('notification_award').style.display = 'block';       
+                        });
+                    });
+                })
+            }else{
+                db.collection("USERS").doc(id).collection('USER_REWARDS').where('type', '==', 'Discount').get()
+                .then(function(querySnapshot) {
+                    querySnapshot.forEach(function(doc) {
+                        let doc_id = doc.id;
+                        db.collection("USERS").doc(id).collection('USER_REWARDS').doc(doc_id).set(awardDiscount)
+                        .then(function() {
+                            document.getElementById('discount_body').value = '' ;
+                            document.getElementById('lower_limit').value = '3000000';
+                            document.getElementById('upper_limit').value ='50000000' ;
+                            document.getElementById('amount').value = '500000';
+                            document.getElementById('percent').value ='10';
+                            document.getElementById('date').value = Date.now();
+                            document.getElementById('notification_award').style.display = 'block';
+                        });
+                    });
+                })
+             }
+        });
+    });  
+}
+
+function add_notification(){
+    let notify_body = document.getElementById('notification_body').value;
+    let image = document.getElementById('choiceImageNotify').files[0];
+    let image_notify = document.getElementById('choiceImageNotify').files[0].name;
+
+    if(notify_body != '' && image_notify != '' ){
+        // console.log(notify_body);
+        // console.log(image_notify);
+
+        db.collection("USERS").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                let id = doc.id;
+                //console.log('ID: ' + id);
+               
+                db.collection("USERS").doc(id).collection('USER_DATA').doc('MY_NOTIFICATIONS').get()
+                .then(function(doc) {
+                    
+                        let doc_id = doc.id;
+                        let doc_size = doc.data().list_size;
+                        // console.log(doc_id);
+                        // console.log(id + ' => ' + 'doc id: ' + doc_id + ' => ' + doc_size);
+
+                         //upload img
+                        let storageRef = firebase.storage().ref('Products/' + image_notify);
+                        var uploadTask = storageRef.put(image);
+                        uploadTask.on('state_changed', function(snapshot){
+                            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            //console.log('Upload is ' + progress + '% done');
+                        }, function(error) {
+                        }, function() {
+                            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                                //console.log('File available at', downloadURL);
+                                db.collection("USERS").doc(id).collection('USER_DATA').doc('MY_NOTIFICATIONS').update({
+                                    list_size: doc_size +1,
+                                    ['Body_' + doc_size]: notify_body,
+                                    ['Image_' + doc_size]: downloadURL,
+                                    ['Readed_' + doc_size]: false,
+                                })
+                                .then(function() {
+                                    document.getElementById('notification_body').value = '' ;
+                                    document.getElementById('choiceImageNotify').value = '';
+                                    document.getElementById('notification_notify').style.display = 'block';       
+                                });
+                            });
+                        }); 
+                        //upload image
+
+                       
+                    
+                });
+                
+            });
+        });
+
+       
+    }
+    
+}

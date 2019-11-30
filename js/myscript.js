@@ -22,11 +22,13 @@ const tablebodyOrder = document.querySelector('#table_body_order');
 const table_detail = document.querySelector('#table_body_detail');
 const table_td = document.querySelector('#table_td');
 const table_thongke = document.querySelector('#table_body_thongke');
-
+const table_cancel_order = document.querySelector('#table_body_cancel_order');
 var tags = [];
 var product_image_add = '';
 var id_product_update = document.getElementById('id_product_update');
 var name_product_update = document.getElementById('name_product_update');
+var month_array = [];
+var totalAmountMonths = [];
 
 // data
 function ClearOptions(id)
@@ -180,8 +182,8 @@ function login(){
 function renderProduct(doc){
     
     let tr = document.createElement('tr');
-    let id = document.createElement('td');
     
+    let id = document.createElement('td');
     let name = document.createElement('td');
     let price = document.createElement('td');
     let cuttesPrice = document.createElement('td');
@@ -194,8 +196,8 @@ function renderProduct(doc){
     tr.setAttribute('table_row', doc.id);
     id.textContent = doc.id;
     name.textContent = doc.data().product_fullname;
-    price.textContent = doc.data().product_price;
-    cuttesPrice.textContent = doc.data().product_cutted_price;
+    price.textContent = (doc.data().product_price).toLocaleString('vi', {style : 'currency', currency : 'VND'});
+    cuttesPrice.textContent = (doc.data().product_cutted_price).toLocaleString('vi', {style : 'currency', currency : 'VND'});
     average_ratting.textContent = doc.data().average_rating;
     total_ratting.textContent = doc.data().total_rating;
     
@@ -243,6 +245,59 @@ db.collection("PRODUCTS").get().then((snapshot) => {
         });
 });
 
+function loadCancelOrder(doc){
+    let tr = document.createElement('tr');
+
+    let idOrder = document.createElement('td');
+    let nameProduct = document.createElement('td');
+    let imgProduct = document.createElement('td');
+    let conform_option = document.createElement('td');
+    let img_product = document.createElement('img');
+
+    let id_order = doc.data().Order_ID;
+    idOrder.textContent = doc.data().Order_ID;
+    let productID = doc.data().Product_ID;
+    
+    db.collection('PRODUCTS').doc(productID).get().then(function(doc_pro) {
+        nameProduct.textContent = doc_pro.data().product_fullname;
+        img_product.src = doc_pro.data().product_image_1;
+    });
+    
+    img_product.style.width = '120px';
+    conform_option.innerHTML = `<button id="btn_conform_cancel" class="btn btn-danger">Xác nhận hủy</button>`;
+    conform_option.style.textAlign = 'center';
+    imgProduct.appendChild(img_product);
+    imgProduct.style.textAlign = 'center';
+    tr.setAttribute('table_row_cancel_order', doc.id);
+    tr.appendChild(idOrder);
+    tr.appendChild(nameProduct);
+    tr.appendChild(imgProduct);
+    tr.appendChild(conform_option);
+    
+    table_cancel_order.appendChild(tr);
+
+   conform_option.addEventListener('click',function(e){
+        e.stopPropagation();
+        let order_cancel_id = tr.getAttribute('table_row_cancel_order');
+        alert("ID: " +  order_cancel_id + " ProID: " + productID);
+        db.collection("CANCELLED ORDERS").doc(order_cancel_id).update({
+            Order_Cancelled: true
+        });
+        // update order status
+        db.collection("ORDERS").doc(id_order).collection('OrderItems').doc(productID).update({
+            Order_Status: 'Cancelled',
+            Cancelled_date: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+            alert("Đã hủy đơn hàng " + id_order + " thành công");
+        }) 
+        // update order status
+    });
+}
+db.collection("CANCELLED ORDERS").where("Order_Cancelled", "==", false).get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+        loadCancelOrder(doc);  
+    });
+});
 
 
 //////////// Load Order
@@ -304,14 +359,14 @@ function renderOders(doc){
     db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
         snapshot.forEach((doc) => {
             //var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id).get('Order_Status');
-            console.log(doc.data().Order_Status);
+            //console.log(doc.data().Order_Status);
             var status = doc.data().Order_Status;
             order_status.textContent = status;
         });
     });
     // order_status.textContent = doc.data().Order_Status;
     totalItems.textContent = doc.data().Total_Items;
-    total_amount.textContent = doc.data().Total_Amount;
+    total_amount.textContent = (doc.data().Total_Amount).toLocaleString('vi', {style : 'currency', currency : 'VND'});
     packed_option.innerHTML = `<h3><i id="packed_order" style="justify-content: center; color: blue"   class="fas fa-box" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
     shipped_option.innerHTML = `<h3><i id="shipped_order" style="color: rgb(8, 173, 82)"  class="fas fa-shipping-fast" data-toggle="tooltip" data-placement="right" title="Shipped"></i> </h3>`;
     delivered_option.innerHTML = `<h3><i id="delivered_order" style="justify-content: center; color: blue"   class="fas fa-people-carry" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
@@ -337,7 +392,7 @@ function renderOders(doc){
     packed_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
-        console.log("Packed ID: " +  order_id);
+       // console.log("Packed ID: " +  order_id);
         db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
             snapshot.forEach((doc) => {
                 var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id);
@@ -353,7 +408,7 @@ function renderOders(doc){
     shipped_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
-        console.log("Shipped ID: " +  order_id);
+        //console.log("Shipped ID: " +  order_id);
         db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
             snapshot.forEach((doc) => {
                 var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id);
@@ -367,7 +422,7 @@ function renderOders(doc){
     delivered_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
-        console.log("Delivered ID: " +  order_id);
+        //console.log("Delivered ID: " +  order_id);
         db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
             snapshot.forEach((doc) => {
                 var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id);
@@ -381,7 +436,7 @@ function renderOders(doc){
     view_option.addEventListener('click',function(e){
         e.stopPropagation();
         let order_id = tr.getAttribute('table_row_order');
-        console.log("View ID: " +  order_id);
+        //console.log("View ID: " +  order_id);
         db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
             snapshot.forEach((doc) => {
                 db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id).get().then(function(product) {
@@ -479,27 +534,7 @@ function changeUseTabFunction(){
         alert('KHong dung');
     }
 }
-function changeUseMonthFunction(){
-    var month_opt = document.getElementById('month').value;
-    console.log(month_opt);
 
-    //var month = new 
-    var month_array = [];
-    db.collection("ORDERS").get().then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-            // doc.data() is never undefined for query doc snapshots
-            var time_data = doc.data().time_ordered;
-            console.log('ID: ' + doc.id + " time: " + time_data);
-            var month = new Date(time_data);
-            console.log(month);
-        });
-    })
-    .catch(function(error) {
-        console.log("Error getting documents: ", error);
-    });
-
-
-}
 function upLoadStorage1(image, imageName, id){  
     var cate = document.getElementById('category');
     var layout = document.getElementById('cateLayout');
@@ -521,24 +556,22 @@ function upLoadStorage1(image, imageName, id){
             db.collection("PRODUCTS").doc(id).update({
                 product_image_1: downloadURL
             });
-
             // add vao CATEGORIES
-            console.log('Cate Layout: '  + cateLayout);
-            console.log('Cate: ' +   category)
+            //console.log('Cate Layout: '  + cateLayout);
+            //console.log('Cate: ' +   category)
             var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', cateLayout);
             topRef.get().then((querySnapshot) => {
                         querySnapshot.forEach((doc) => {
-                            var view_type = doc.get('view_type');
                             var num_products = doc.get('num_products');
                             var doc_id = doc.id;
                             
                             db.collection("PRODUCTS").doc(id).get().then(function(doc_data) {
-                                //product_image_add =  doc_data.data().product_image_1;
+                                product_image_add =  doc_data.data().product_image_1;
                                 //console.log('Image added:' + product_image_add);
                                 num_products = num_products + 1;
                                 db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').doc(doc_id).update({
                                     ['product_id_' + num_products]: id,
-                                    ['product_image_' + num_products]: downloadURL,
+                                    ['product_image_' + num_products]: product_image_add,
                                     ['product_price_' + num_products]: product_price,
                                     ['product_name_' + num_products]: product_name,
                                     num_products: num_products,
@@ -568,7 +601,7 @@ function upLoadStorage2(image, imageName, id){
       }, function(error) {
       }, function() {
         uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-          console.log('File available at', downloadURL);
+          //console.log('File available at', downloadURL);
           db.collection("PRODUCTS").doc(id).update({
             product_image_2: downloadURL
         }) 
@@ -586,7 +619,7 @@ function upLoadStorage3(image, imageName, id){
       }, function(error) {
       }, function() {
         uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-          console.log('File available at', downloadURL);
+          //console.log('File available at', downloadURL);
           db.collection("PRODUCTS").doc(id).update({
             product_image_3: downloadURL
         }) 
@@ -595,11 +628,11 @@ function upLoadStorage3(image, imageName, id){
 
 
 }
-function getImageurlAdded(id){
-    db.collection("PRODUCTS").doc(id).get().then(function(doc) {
-        product_image_add = doc.data().product_image_1
-    });
-}
+// function getImageurlAdded(id){
+//     db.collection("PRODUCTS").doc(id).get().then(function(doc) {
+//         product_image_add = doc.data().product_image_1
+//     });
+// }
 function add_product(){
     var cate = document.getElementById('category');
     var layout = document.getElementById('cateLayout');
@@ -665,15 +698,15 @@ function add_product(){
 
     var total_rating = 4;
     
-    console.log('Product name: ' + product_name);
-        console.log('Product price: ' + product_price);
-        console.log('Product cutted: ' + product_cutted_price);
-        console.log('Product description: ' + product_desription);
-        console.log('Product name discount: ' + free_discount_name);
-        console.log('Product body discount: ' + free_discount_body);
-        console.log('Product num free discount: ' + free_discount);
-        console.log('Spect 1: ' + specification_1);
-        console.log('Spect 2: ' + specification_2);
+    // console.log('Product name: ' + product_name);
+    //     console.log('Product price: ' + product_price);
+    //     console.log('Product cutted: ' + product_cutted_price);
+    //     console.log('Product description: ' + product_desription);
+    //     console.log('Product name discount: ' + free_discount_name);
+    //     console.log('Product body discount: ' + free_discount_body);
+    //     console.log('Product num free discount: ' + free_discount);
+    //     console.log('Spect 1: ' + specification_1);
+    //     console.log('Spect 2: ' + specification_2);
 
     if(!isEmpty(product_name, 'Tên sản phẩm ') && !isEmpty(product_price, 'Gía sản phẩm ') && !isEmpty(product_description, 'Mô tả sản phẩm') && !isEmpty(product_cutted_price, 'Gía cũ') && !isEmpty(free_discount_name,'Tên khuyến mãi') && !isEmpty(free_discount_body,'Nội dung khuyến mãi') && !isEmpty(specification_2, 'Mục 2') ){      
 
@@ -718,7 +751,7 @@ function add_product(){
             product_image_3: ''
         };
 
-        console.log(docData);
+        //console.log(docData);
 
         var newProductRef = db.collection("PRODUCTS");
         newProductRef.add(docData).then(function(docRef) {
@@ -728,40 +761,102 @@ function add_product(){
             upLoadStorage2(img2, imageName2, docRef.id);
             upLoadStorage3(img3, imageName3, docRef.id);
 
-            getImageurlAdded(docRef.id);
-            // // add vao CATEGORIES
-            // console.log('Cate Layout: '  + cateLayout);
-            // console.log('Cate: ' +   category)
-            // var topRef = db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').where('index', '==', cateLayout);
-            // topRef.get().then((querySnapshot) => {
-            //             querySnapshot.forEach((doc) => {
-            //                 var view_type = doc.get('view_type');
-            //                 var num_products = doc.get('num_products');
-            //                 var doc_id = doc.id;
-                            
-            //                 db.collection("PRODUCTS").doc(product_id_add).get().then(function(doc_data) {
-            //                     product_image_add =  doc_data.data().product_image_1;
-            //                     console.log('Image added:' + product_image_add);
-            //                     num_products = num_products + 1;
-            //                     db.collection('CATEGORIES').doc(category).collection('TOP_DEALS').doc(doc_id).update({
-            //                         ['product_id_' + num_products]: docRef.id,
-            //                         ['product_image_' + num_products]: product_image_add,
-            //                         ['product_price_' + num_products]: product_price,
-            //                         ['product_name_' + num_products]: docData.product_fullname,
-            //                         num_products: num_products,
-            //                         ['product_descr_' + num_products]: docData.product_description
-            //                     }).then(function(docRef) {
-            //                         alert('Sản phẩm đã được thêm vào Category');
-            //                     });
-            //                 });
-            //             });
-            // });
-            // // add vao CATEGORIES
         });
         // Add PRODUCTS
 
     }
 }//add product
+
+//Thong ke
+function clearRow(){
+    let table = document.getElementById('table_body_thongke');
+    let row = table.getElementsByTagName('tr');
+    let rowCount = row.length;
+
+    for (var x=rowCount-1; x>0; x--) {
+    table.removeChild(row[x]);
+    }
+}
+function changeUseMonthFunction(){
+    clearRow();
+    month_array = [];
+    totalAmountMonths = [];
+    let month_option = Number(document.getElementById('month').value);
+    //console.log(month_option);
+    
+    loadOrderThongKe(month_option);
+
+}
+function loadOrderThongKe(month){
+    //clearRow();
+    db.collection("ORDERS").where("Payment_Status", "==", "Đã thanh toán").get().then(function(querySnapshot) {
+        querySnapshot.forEach((doc) => {
+            let getMonth = Number(("0" + (((doc.data().time_ordered).toDate()).getMonth() + 1)).slice(-2));
+            
+            if(getMonth == month){
+                month_array.push(doc.id); // month_array is global
+                totalAmountMonths.push(doc.data().Total_Amount);
+                //console.log("Arrays: " + month_array);
+            }
+            
+        });
+        // console.log("Arrays: " + month_array);
+        // console.log('Amounts: ' + totalAmountMonths);
+        var total = 0;
+        for(let y = 0; y < totalAmountMonths.length; y++){
+            
+            total = total + Number(totalAmountMonths[y]);
+        }
+       // console.log('Total: ' + total);
+        
+        document.getElementById('totaklPaymented').value = (total).toLocaleString('vi', {style : 'currency', currency : 'VND'});;
+        document.getElementById('totaklPaymented').style.fontWeight = 'bold';
+        document.getElementById('totaklPaymented').style.background = 'white';
+        document.getElementById('totaklPaymented').style.borderColor = 'green';
+        document.getElementById('totaklPaymented').style.color = 'green';
+
+      
+        //clearRow();
+        $("#table_body_thongke").empty()
+        for(var i =0; i < month_array.length; i++){
+            console.log("Ids: " + month_array[i]);
+            db.collection("ORDERS").doc(month_array[i]).get().then(function(doc) {
+                    
+                    let tr = document.createElement('tr');
+                    let id_order = document.createElement('td');
+                    let time_ordered = document.createElement('td');
+                    let amount = document.createElement('td');
+            
+                    tr.setAttribute('table_row_thongke', doc.id);
+                    
+                    id_order.textContent = doc.id;
+                    time_ordered.textContent = (doc.data().time_ordered).toDate();
+                    amount.textContent = (doc.data().Total_Amount).toLocaleString('vi', {style : 'currency', currency : 'VND'});
+                    amount.style.fontWeight = 'bold';
+                    
+                    tr.appendChild(id_order);
+                    tr.appendChild(time_ordered);
+                    tr.appendChild(amount);  
+                    
+                    table_thongke.appendChild(tr); 
+            });
+        }
+    });
+    
+}
+
+// db.collection("ORDERS").where("Payment_Status", "==", "Đã thanh toán").get().then(function(querySnapshot) {
+//     querySnapshot.forEach((doc) => {
+//         //clearRow();
+//         //changeUseMonthFunction(doc);
+//         //loadOrderThongKe(doc);
+//         //console.log('ID: ' + doc.id);
+//     });
+// })
+
+
+//Thong ke
+
 
 //Update 
 function parseURLParams(url) {
@@ -852,6 +947,10 @@ function update_product(){
 //    console.log('product_price: ' + product_price);
 //    console.log('tags: ' + tags);
 }
-
 //Update
+
+
+
+
+
 

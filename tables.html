@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>SB Admin - Tables</title>
+  <title>Trang chủ - Các mục khác</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -28,7 +28,7 @@
 
   <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
-    <a class="navbar-brand mr-1" href="index.html">Start Bootstrap</a>
+    <a class="navbar-brand mr-1" href="index.html">Trang Quản Trị</a>
 
     <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
       <i class="fas fa-bars"></i>
@@ -37,7 +37,7 @@
     <!-- Navbar Search -->
     <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+        <input type="text" class="form-control" placeholder="Tìm Kiếm..." aria-label="Search" aria-describedby="basic-addon2">
         <div class="input-group-append">
           <button class="btn btn-primary" type="button">
             <i class="fas fa-search"></i>
@@ -94,13 +94,13 @@
       <li class="nav-item">
         <a class="nav-link" href="index.html">
           <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Dashboard</span>
+          <span>Trang chủ</span>
         </a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="fas fa-fw fa-folder"></i>
-          <span>Pages</span>
+          <span>Trang</span>
         </a>
         <div class="dropdown-menu" aria-labelledby="pagesDropdown">
           <h6 class="dropdown-header">Login Screens:</h6>
@@ -113,15 +113,11 @@
           <a class="dropdown-item" href="blank.html">Blank Page</a>
         </div>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="charts.html">
-          <i class="fas fa-fw fa-chart-area"></i>
-          <span>Charts</span></a>
-      </li>
+
       <li class="nav-item active">
         <a class="nav-link" href="tables.html">
           <i class="fas fa-fw fa-table"></i>
-          <span>Tables</span></a>
+          <span>Các mục khác</span></a>
       </li>
     </ul>
 
@@ -132,9 +128,9 @@
         <!-- Breadcrumbs-->
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="#">Dashboard</a>
+            <a href="#">Trang chủ</a>
           </li>
-          <li class="breadcrumb-item active">Tables</li>
+          <li class="breadcrumb-item active">Các bảng</li>
           <!-- ADD PRODUCT -->
           <a id="btn_addproduct" href="add_product.html" type="button" class="btn btn-primary ml-auto mr-0 mr-md-3 my-2 my-md-0"><i class="fas fa-plus"></i> Thêm sản phẩm </a>
         </ol>
@@ -150,26 +146,26 @@
               width="100%">
                 <thead class="thead-dark">
                   <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Cutted price</th>
-                    <th>Average rating</th>
-                    <th>Total rating</th>
-                    <th>Edit Option</th>
-                    <th>Delete Option</th>
+                    <th>Mã SP</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Gía Bán</th>
+                    <th>Gía cũ</th>
+                    <th>Số sao TB</th>
+                    <th>Tổng lượt bình chọn</th>
+                    <th>Chỉnh Sửa</th>
+                    <th>Xóa</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Cutted price</th>
-                      <th>Average rating</th>
-                      <th>Total rating</th>
-                      <th>Edit Option</th>
-                      <th>Delete Option</th>
+                    <th>Mã SP</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Gía Bán</th>
+                    <th>Gía cũ</th>
+                    <th>Số sao TB</th>
+                    <th>Tổng lượt bình chọn</th>
+                    <th>Chỉnh Sửa</th>
+                    <th>Xóa</th>
                   </tr>
                 </tfoot>
                 <tbody id="table_body">
@@ -202,27 +198,27 @@
               width="100%">
                 <thead>
                   <tr>
-                    <th>Mã Order</th>
+                    <th>Mã đơn hàng</th>
                     <th>Thanh Toán</th>
                     <th>Trang Thái Giao Hàng</th>
                     <th>Số lượng</th>
                     <th>Tổng tiền TT</th>
-                    <th> Packed</th>
-                    <th> Shipped</th>
-                    <th> Delivered</th>
+                    <th> Đóng gói</th>
+                    <th> Vận chuyển</th>
+                    <th> Đã giao</th>
                     <th>Xem Chi Tiết</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>Mã Order</th>
+                   <th>Mã đơn hàng</th>
                     <th>Thanh Toán</th>
                     <th>Trang Thái Giao Hàng</th>
                     <th>Số lượng</th>
                     <th>Tổng tiền TT</th>
-                    <th> Packed</th>
-                    <th> Shipped</th>
-                    <th> Delivered</th>
+                    <th> Đóng gói</th>
+                    <th> Vận chuyển</th>
+                    <th> Đã giao</th>
                     <th>Xem Chi Tiết</th>
                   </tr>
                 </tfoot>
@@ -256,17 +252,17 @@
                     <th>Tên SP</th>
                     <th>Số Lượng</th>
                     <th>Số Tiền</th>
-                    <th> Ngày Order</th>
+                    <th> Ngày đặt hàng</th>
                     <th> Phương Thức TT</th>   
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>Mã SP</th>
-                    <th>Tên SP</th> 
+                   <th>Mã SP</th>
+                    <th>Tên SP</th>
                     <th>Số Lượng</th>
                     <th>Số Tiền</th>
-                    <th> Ngày Order</th>
+                    <th> Ngày đặt hàng</th>
                     <th> Phương Thức TT</th>
                   </tr>
                 </tfoot>
@@ -296,38 +292,31 @@
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead class="thead-dark">
                   <tr>
-                    <th>ID Order</th>
-                    <th>Thời Gian Thanh Toán</th>
-                    <th>Số Tiền TT</th>
+                    <th>Mã đơn hàng</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Ảnh Sản Phẩm</th>
+                    <th>Yêu Cầu Hủy</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>ID Order</th>
-                    <th>Thời Gian Thanh Toán</th>
-                    <th>Số Tiền TT</th>
+                    <th>Mã đơn hàng</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Ảnh Sản Phẩm</th>
+                    <th>Yêu Cầu Hủy</th>
                   </tr>
                 </tfoot>
                 <tbody id="table_body_cancel_order">
-                  <!-- <tr id="table_row_thongke">
+                  <!-- <tr id="table_row_cancel_order">
                     <td>Donna Snider</td>
                     <td>Customer Support</td>
-                    <td>New York</td>
+                    <td style="text-align: center;"><img src="https://firebasestorage.googleapis.com/v0/b/ecormerceapp.appspot.com/o/Products%2Flap11.jpg?alt=media&token=3a7005eb-f040-436f-b23c-9c3bf8d0ad21" style="width: 120px; text-align: center; justify-content: center;" alt=""></td>
+                    <td style="text-align: center;"><button id="btn_conform_cancel" class="btn btn-danger">Xác nhận hủy</button></td>
                   </tr> -->
                 </tbody>
               </table>
             </div>
-            <div class="row">
-                <div class="col-xs-6 col-sm-6 col-md-6">
-                    <label >Tổng thu:</label>
-                    <div class="input-group mb-3">
-                            <input type="text" disabled class="form-control" placeholder="Tổng tền" id="totaklPaymented">
-                            <div class="input-group-append">
-                              <button class="btn btn-success" type="submit">đ</button>
-                            </div>
-                    </div>
-                </div>
-            </div>
+
           </div>
          
         </div>
@@ -358,35 +347,36 @@
                   <option  value="12">Tháng 12</option>
               </select><br>
             <div class="table-responsive">
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                <thead class="thead-dark">
+              <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
                   <tr>
-                    <th>ID Order</th>
-                    <th>Thời Gian Thanh Toán</th>
+                     <th>Mã đơn hàng</th>
+                    <th>Thời Gian Đặt Hàng</th>
                     <th>Số Tiền TT</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>ID Order</th>
-                    <th>Thời Gian Thanh Toán</th>
+                     <th>Mã đơn hàng</th>
+                    <th>Thời Gian Đặt Hàng</th>
                     <th>Số Tiền TT</th>
                   </tr>
                 </tfoot>
                 <tbody id="table_body_thongke">
                   <!-- <tr id="table_row_thongke">
-                    <td>Donna Snider</td>
-                    <td>Customer Support</td>
-                    <td>New York</td>
+                    <td>454j3k4j3jjoooo65</td>
+                    <td>2/12/2019</td>
+                    <td>200000000</td>
                   </tr> -->
                 </tbody>
               </table>
             </div>
             <div class="row">
-                <div class="col-xs-6 col-sm-6 col-md-6">
+              <div class="col-sm-9 col-md-9 col-lg-9"></div>
+                <div class="col-sm-3 col-md-3 col-lg-3">
                     <label >Tổng thu:</label>
                     <div class="input-group mb-3">
-                            <input type="text" disabled class="form-control" placeholder="Tổng tền" id="totaklPaymented">
+                            <input type="text" readonly class="form-control" placeholder="Tổng tền" id="totaklPaymented">
                             <div class="input-group-append">
                               <button class="btn btn-success" type="submit">đ</button>
                             </div>
