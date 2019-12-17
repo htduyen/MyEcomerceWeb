@@ -23,6 +23,7 @@ const table_detail = document.querySelector('#table_body_detail');
 const table_td = document.querySelector('#table_td');
 const table_thongke = document.querySelector('#table_body_thongke');
 const table_cancel_order = document.querySelector('#table_body_cancel_order');
+
 var tags = [];
 var product_image_add = '';
 var id_product_update = document.getElementById('id_product_update');
@@ -163,11 +164,21 @@ let id = document.createElement('td');
 
 
 function kiemtra(doc){
-    var email = document.getElementById('inputEmail').nodeValue;
-    var password = document.getElementById('inputPassword').nodeValue;
-
-    if(email == doc.data.email && password == doc.data.password){
-        alert('Đăng nhập thành công, Bạn hãy quay về trang chủ');
+    var emailval = document.getElementById('inputEmail').value;
+    var passwordval = document.getElementById('inputPassword').value;
+    let success = document.getElementById('notify_login');
+    if(emailval == doc.data().email && passwordval == doc.data().password){
+        
+        success.style.display = 'block';
+        success.style.color = 'blue';
+        success.innerHTML = "Đăng nhập thành công!"
+        
+        document.getElementById('homeback').style.display = 'block';
+        window.location.href = "index.html?email="+emailval + "&password="+passwordval;
+    }else{
+        success.style.display = 'block';
+        success.style.color = 'red';
+        success.innerHTML = 'Kiểm tra lại Email và mật khẩu!'
     }
 }
 
@@ -190,7 +201,6 @@ function renderProduct(doc){
     let average_ratting = document.createElement('td');
     let total_ratting = document.createElement('td');
     let edit_option = document.createElement('td');
-    let delete_option = document.createElement('td');
 
 
     tr.setAttribute('table_row', doc.id);
@@ -199,10 +209,8 @@ function renderProduct(doc){
     price.textContent = (doc.data().product_price).toLocaleString('vi', {style : 'currency', currency : 'VND'});
     cuttesPrice.textContent = (doc.data().product_cutted_price).toLocaleString('vi', {style : 'currency', currency : 'VND'});
     average_ratting.textContent = doc.data().average_rating;
-    total_ratting.textContent = doc.data().total_rating;
-    
+    total_ratting.textContent = doc.data().stock_quantity;
     edit_option.innerHTML = `<h3><i id="edit_product" data-toggle="tooltip" data-placement="left" title="Edit" style="color: blue"  class="far fa-edit"></i></h3> `;
-    delete_option.innerHTML = `<h3><i id="delete_product" data-toggle="tooltip" data-placement="left" title="Delete" style="color: red"  class="far fa-trash-alt"></i> </3>`;
 
     tr.appendChild(id);
     tr.appendChild(name);
@@ -211,7 +219,7 @@ function renderProduct(doc){
     tr.appendChild(average_ratting);
     tr.appendChild(total_ratting);
     tr.appendChild(edit_option);
-    tr.appendChild(delete_option);
+    
     
     tablebody.appendChild(tr);
 
@@ -219,21 +227,11 @@ function renderProduct(doc){
         e.stopPropagation();
         let product_id = tr.getAttribute('table_row');
         console.log("Edit ID: " +  product_id);
-        var newUrl = "http://127.0.0.1:5500/startbootstrap-sb-admin-gh-pages/edit_product.html?id="+product_id + "&name="+name.textContent;
+        var newUrl = "edit_product.html?id="+product_id + "&name="+name.textContent;
         document.location.href = newUrl;
-
     })
 
-    delete_option.addEventListener('click', (e) =>{
-        e.stopPropagation();
-        let product_id = tr.getAttribute('table_row');
-        console.log("Remove ID: " +  product_id);
-        db.collection("PRODUCTS").doc(product_id).update({
-            stock_quantity: 0
-        }).then(function() {
-            alert("Đã gán Số Lượng bằng 0!");
-        })
-    });
+    
 }
 
 
@@ -251,47 +249,133 @@ function loadCancelOrder(doc){
     let idOrder = document.createElement('td');
     let nameProduct = document.createElement('td');
     let imgProduct = document.createElement('td');
+    let isPayment = document.createElement('td');
     let conform_option = document.createElement('td');
     let img_product = document.createElement('img');
-
+    var uid ='';
+    let thanhtoan = '';
     let id_order = doc.data().Order_ID;
-    idOrder.textContent = doc.data().Order_ID;
+    // idOrder.textContent = doc.data().Order_ID;
     let productID = doc.data().Product_ID;
-    
+
+    var can_ref  = db.collection("ORDERS").doc(id_order).collection('OrderItems').doc(productID)
+    can_ref.get().then(function(doc_can){
+        idOrder.textContent = doc_can.data().User_ID;
+        uid = doc_can.data().User_ID;
+        
+    })
+    var  result;
+    let dathanhtoan = 'Đã thanh toán'
+    db.collection("ORDERS").doc(id_order).get().then(function(doc_can1){
+        thanhtoan = doc_can1.data().Payment_Status
+        isPayment.textContent = thanhtoan
+        result = thanhtoan.localeCompare(dathanhtoan)
+        if(result == 0){
+            conform_option.innerHTML = `<button id="btn_conform_cancel" class="btn btn-primary">Xem xét</button>`;
+            conform_option.addEventListener('click',function(e){
+                e.stopPropagation();
+                let order_cancel_id = tr.getAttribute('table_row_cancel_order');
+                db.collection("CANCELLED ORDERS").doc(order_cancel_id).update({
+                    Order_Cancelled: true
+                }).then(function() {
+                    alert("Đã gửi thông báo cho khách hàng");
+                    //Them thong báo 
+                    db.collection("USERS").doc(uid).collection('USER_DATA').doc('MY_NOTIFICATIONS').get()
+                        .then(function(doc) {
+                                let doc_size = doc.data().list_size;
+                                        db.collection("USERS").doc(uid).collection('USER_DATA').doc('MY_NOTIFICATIONS').update({
+                                            list_size: doc_size +1,
+                                            ['Body_' + doc_size]: 'Đơn hàng của bạn đã thanh toán, xin lỗi bạn không thể hủy đơn hàng',
+                                            ['Image_' + doc_size]: 'https://firebasestorage.googleapis.com/v0/b/ecormerceapp.appspot.com/o/Notifications%2Fsorry.jpg?alt=media&token=88094f62-41d8-4cbf-a110-9c5bc76c9123',
+                                            ['Readed_' + doc_size]: false,
+                                        });
+                                }); 
+                                
+                    //Them thong báo hủy thanh cong
+                }) 
+                // update order status
+            });
+        }else{
+            conform_option.innerHTML = `<button id="btn_conform_cancel" class="btn btn-danger">Xác nhận hủy</button>`;  
+        }
+    })
     db.collection('PRODUCTS').doc(productID).get().then(function(doc_pro) {
         nameProduct.textContent = doc_pro.data().product_fullname;
         img_product.src = doc_pro.data().product_image_1;
     });
     
     img_product.style.width = '120px';
-    conform_option.innerHTML = `<button id="btn_conform_cancel" class="btn btn-danger">Xác nhận hủy</button>`;
+   // conform_option.innerHTML = `<button id="btn_conform_cancel" class="btn btn-danger">Xác nhận hủy</button>`;
     conform_option.style.textAlign = 'center';
     imgProduct.appendChild(img_product);
     imgProduct.style.textAlign = 'center';
+    
+
+
     tr.setAttribute('table_row_cancel_order', doc.id);
     tr.appendChild(idOrder);
     tr.appendChild(nameProduct);
     tr.appendChild(imgProduct);
+    tr.appendChild(isPayment)
     tr.appendChild(conform_option);
     
     table_cancel_order.appendChild(tr);
-
-   conform_option.addEventListener('click',function(e){
-        e.stopPropagation();
-        let order_cancel_id = tr.getAttribute('table_row_cancel_order');
-        alert("ID: " +  order_cancel_id + " ProID: " + productID);
-        db.collection("CANCELLED ORDERS").doc(order_cancel_id).update({
-            Order_Cancelled: true
-        });
-        // update order status
-        db.collection("ORDERS").doc(id_order).collection('OrderItems').doc(productID).update({
-            Order_Status: 'Cancelled',
-            Cancelled_date: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(function() {
-            alert("Đã hủy đơn hàng " + id_order + " thành công");
-        }) 
-        // update order status
-    });
+    
+    // if(result == 0){
+    //     // conform_option.addEventListener('click',function(e){
+    //     //     e.stopPropagation();
+    //     //     let order_cancel_id = tr.getAttribute('table_row_cancel_order');
+    //     //     db.collection("CANCELLED ORDERS").doc(order_cancel_id).update({
+    //     //         Order_Cancelled: true
+    //     //     }).then(function() {
+    //     //         alert("Đã gửi thông báo cho khách hàng");
+    //     //         //Them thong báo 
+    //     //         db.collection("USERS").doc(uid).collection('USER_DATA').doc('MY_NOTIFICATIONS').get()
+    //     //             .then(function(doc) {
+    //     //                     let doc_size = doc.data().list_size;
+    //     //                             db.collection("USERS").doc(uid).collection('USER_DATA').doc('MY_NOTIFICATIONS').update({
+    //     //                                 list_size: doc_size +1,
+    //     //                                 ['Body_' + doc_size]: 'Đơn hàng của bạn đã thanh toán, xin lỗi bạn không thể hủy đơn hàng',
+    //     //                                 ['Image_' + doc_size]: 'https://firebasestorage.googleapis.com/v0/b/ecormerceapp.appspot.com/o/Notifications%2Fcancel_order.jpg?alt=media&token=9f05aaf2-0e12-4206-9d7f-842fb6f82d17',
+    //     //                                 ['Readed_' + doc_size]: false,
+    //     //                             });
+    //     //                     }); 
+                            
+    //     //         //Them thong báo hủy thanh cong
+    //     //     }) 
+    //     //     // update order status
+    //     // });
+    // }else{
+    //     conform_option.addEventListener('click',function(e){
+    //         e.stopPropagation();
+    //         let order_cancel_id = tr.getAttribute('table_row_cancel_order');
+    //         db.collection("CANCELLED ORDERS").doc(order_cancel_id).update({
+    //             Order_Cancelled: true
+    //         });
+    //         // update order status
+            
+    //         can_ref.update({
+    //             Order_Status: 'Cancelled',
+    //             Cancelled_date: firebase.firestore.FieldValue.serverTimestamp()
+    //         }).then(function() {
+    //             alert("Đã hủy đơn hàng thành công");
+    //             //Them thong báo 
+    //             db.collection("USERS").doc(uid).collection('USER_DATA').doc('MY_NOTIFICATIONS').get()
+    //                 .then(function(doc) {
+    //                         let doc_size = doc.data().list_size;
+    //                                 db.collection("USERS").doc(uid).collection('USER_DATA').doc('MY_NOTIFICATIONS').update({
+    //                                     list_size: doc_size +1,
+    //                                     ['Body_' + doc_size]: 'Bạn đã hủy đơn hàng thành công, hẹn gặp lại bạn',
+    //                                     ['Image_' + doc_size]: 'https://firebasestorage.googleapis.com/v0/b/ecormerceapp.appspot.com/o/Notifications%2Fcancel_order.jpg?alt=media&token=9f05aaf2-0e12-4206-9d7f-842fb6f82d17',
+    //                                     ['Readed_' + doc_size]: false,
+    //                                 });
+    //                         }); 
+                            
+    //             //Them thong báo hủy thanh cong
+    //         }) 
+    //         // update order status
+    //     });    }
+   
 }
 db.collection("CANCELLED ORDERS").where("Order_Cancelled", "==", false).get().then((snapshot) => {
     snapshot.forEach((doc) => {
@@ -316,7 +400,7 @@ function loadDetail(doc){
     name_product.textContent = doc.data().Product_Name;
     //image.innerHTML = `<img id="image_product"  style="width: 40px; " alt="PRODUCT">`
     quantity.textContent = doc.data().Product_Quantity;
-    price.textContent = doc.data().Product_Price;
+    price.textContent = (doc.data().Product_Price).toLocaleString('vi', {style : 'currency', currency : 'VND'});
     payment.textContent = doc.data().Payment_Method;
    
     let ordered = new Date();
@@ -339,6 +423,7 @@ function loadDetail(doc){
 }
 
 function renderOders(doc){
+    
     let tr = document.createElement('tr');
     let id_field = document.createElement('td');
     let payment_status = document.createElement('td');
@@ -356,11 +441,13 @@ function renderOders(doc){
     payment_status.textContent = doc.data().Payment_Status;
 
     let order_id = tr.getAttribute('table_row_order');
+    //order_status.textContent = doc.data().Order_Status
+    var status;
     db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
         snapshot.forEach((doc) => {
             //var ref = db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id).get('Order_Status');
             //console.log(doc.data().Order_Status);
-            var status = doc.data().Order_Status;
+            status = doc.data().Order_Status;
             order_status.textContent = status;
         });
     });
@@ -368,8 +455,11 @@ function renderOders(doc){
     totalItems.textContent = doc.data().Total_Items;
     total_amount.textContent = (doc.data().Total_Amount).toLocaleString('vi', {style : 'currency', currency : 'VND'});
     packed_option.innerHTML = `<h3><i id="packed_order" style="justify-content: center; color: blue"   class="fas fa-box" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
+    packed_option.setAttribute('class', doc.id)
     shipped_option.innerHTML = `<h3><i id="shipped_order" style="color: rgb(8, 173, 82)"  class="fas fa-shipping-fast" data-toggle="tooltip" data-placement="right" title="Shipped"></i> </h3>`;
+    shipped_option.setAttribute('class', doc.id)
     delivered_option.innerHTML = `<h3><i id="delivered_order" style="justify-content: center; color: blue"   class="fas fa-people-carry" data-toggle="tooltip" data-placement="left" title="Packed"></i> </h3>`;
+    delivered_option.setAttribute('class', doc.id)
 
     view_option.innerHTML = `<h3><i id="view_detail_order" style="color: rgb(236, 146, 27)" class="fas fa-angle-double-right" data-toggle="tooltip" data-placement="bottom" title="Delivered"></i> </h3>`;
 
@@ -399,6 +489,8 @@ function renderOders(doc){
                 return ref.update({
                     Order_Status: "Packed",
                     Packed_date: firebase.firestore.Timestamp.now()
+                }).then(function() {
+                    alert("Hàng đã được đóng gói");
                 });
             });
         });
@@ -415,6 +507,8 @@ function renderOders(doc){
                 return ref.update({
                     Order_Status: "Shipped",
                     Shipped_date: firebase.firestore.Timestamp.now()
+                }).then(function() {
+                    alert("Hàng đã được vận chuyển");
                 });
             });
         });
@@ -429,26 +523,37 @@ function renderOders(doc){
                 return ref.update({
                     Order_Status: "Delivered",
                     Delivered_date: firebase.firestore.Timestamp.now()
+                }).then(function() {
+                    var qty_order = 0;
+                    ref.get().then(function(doc_qty) {
+                        qty_order = Number(doc_qty.data().Product_Quantity);
+                        console.log("Qty: " + qty_order)
+
+                        db.collection("PRODUCTS").doc(doc.id).update({
+                            stock_quantity: firebase.firestore.FieldValue.increment(-qty_order)
+                        });
+                    })
+                    alert("Hàng đã được giao. Số lượng giảm đi " + qty_order);
                 });
             });
         });
     });
     view_option.addEventListener('click',function(e){
         e.stopPropagation();
+        $("#table_body_detail").empty();
         let order_id = tr.getAttribute('table_row_order');
         //console.log("View ID: " +  order_id);
         db.collection("ORDERS").doc(order_id).collection('OrderItems').get().then((snapshot) => {
             snapshot.forEach((doc) => {
-                db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id).get().then(function(product) {
+                db.collection("ORDERS").doc(order_id).collection('OrderItems').doc(doc.id)
+                .get().then(function(product) {
                     if (product.exists) {
+                        //$("#table_body_detail").empty()
                         loadDetail(product);
-                    } else {
-                        console.log("No such document!");
                     }
                 }).catch(function(error) {
                     console.log("Error getting document:", error);
-                });;
-                
+                });
             });
         });
     });
@@ -809,7 +914,7 @@ function loadOrderThongKe(month){
         }
        // console.log('Total: ' + total);
         
-        document.getElementById('totaklPaymented').value = (total).toLocaleString('vi', {style : 'currency', currency : 'VND'});;
+        document.getElementById('totaklPaymented').value = (total).toLocaleString('vi', {style : 'currency', currency : 'VND'});
         document.getElementById('totaklPaymented').style.fontWeight = 'bold';
         document.getElementById('totaklPaymented').style.background = 'white';
         document.getElementById('totaklPaymented').style.borderColor = 'green';
@@ -889,66 +994,32 @@ id_product_update.value = id_array.id[0];
 
 function update_product(){
     
-    var alb = document.getElementById('cod');
+    let alble = document.getElementById('codo');
     //var category =  cate.options[cate.selectedIndex].value;
     var product_name = document.getElementById('product_name').value;
     var product_price = document.getElementById('product_price').value;
     var product_desription = document.getElementById('product_description').value;
     var product_cutted_price = document.getElementById('product_cutted_price').value;
-    var cod = alb.options[alb.selectedIndex].value;
-    var free_discount_name = document.getElementById('free_discount_name').value;
-    var free_discount_body = document.getElementById('free_discount_body').value;
-    var free_discount = document.getElementById('free_discount').value;
+    var cod = alble.options[alble.selectedIndex].value;
+   
 
-    var tag1 = document.getElementById('tag1').value;
-    var tag2 = document.getElementById('tag2').value;
-    var tag3 = document.getElementById('tag3').value;
-    var tag4 = document.getElementById('tag4').value;
-
-    if(tag1.length > 0){
-        tags.push(tag1);
-    }
-    if(tag2.length > 0){
-        tags.push(tag2);
-    }
-    if(tag3.length > 0){
-        tags.push(tag3);
-    }
-    if(tag4.length > 0){
-        tags.push(tag4);
-    }
 
     if(!isEmpty(product_name, 'Tên sản phẩm') && !isEmpty(product_price, 'Gía')){
         db.collection("PRODUCTS").doc(id_update).update({
     
             cod: Boolean(cod),
-            free_discount: Number(free_discount),
-            free_discount_title: free_discount_name,
-            free_discount_body: free_discount_body,
             product_cutted_price: product_cutted_price,
             product_description: product_desription,
             product_fullname: product_name,
-            product_price: product_price,
-            tags: tags
+            product_price: product_price
             
         }).then((snapshot) => {
             alert('Đã update thành công');
+
         });
     }
-
-
-//    console.log('cod: ' + cod);
-//    console.log('num:' +  free_discount);
-//    console.log('titlr: ' + free_discount_name );
-//    console.log('body: ' + free_discount_body);
-//    console.log('cutted: ' + product_cutted_price);
-//    console.log('descr: ' + product_desription);
-//    console.log('name: ' + product_name);
-//    console.log('product_price: ' + product_price);
-//    console.log('tags: ' + tags);
 }
 //Update
-
 
 
 

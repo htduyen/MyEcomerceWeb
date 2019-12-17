@@ -28,28 +28,25 @@
         <form>
           <div class="form-group">
             <div class="form-label-group">
-              <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required="required" autofocus="autofocus">
+              <input type="email" id="inputEmail" onfocus="document.getElementById('notify_login').style.display='none'" class="form-control" placeholder="Email address" required="required" autofocus="autofocus">
               <label for="inputEmail">Email address</label>
             </div>
           </div>
           <div class="form-group">
             <div class="form-label-group">
-              <input type="password" id="inputPassword" class="form-control" placeholder="Password" required="required">
+              <input type="password" id="inputPassword" onfocus="document.getElementById('notify_login').style.display='none'" class="form-control" placeholder="Password" required="required">
               <label for="inputPassword">Password</label>
             </div>
           </div>
           <div class="form-group">
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" value="remember-me">
-                Remember Password
-              </label>
+            <div id="notify_login" style="display:none">
+             Content
             </div>
           </div>
           <a id="btnLogin" class="btn btn-primary btn-block" onclick="login()" href="#">Login</a>
         </form>
-        <div class="text-center">
-          <a class="d-block small mt-3"   href="index.html">Quay lại trang chủ</a>
+        <div class="text-center" style="display:none" id="homeback">
+          <a class="d-block small mt-3" id="a_homeback"  >Quay lại trang chủ</a>
           <!-- <a class="d-block small" ()" href="forgot-password.html">Forgot Password?</a> -->
         </div>
       </div>
